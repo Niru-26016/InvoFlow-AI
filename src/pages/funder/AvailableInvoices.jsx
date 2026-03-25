@@ -1,0 +1,229 @@
+import { useState, useEffect } from 'react';
+import { collection, query, where, onSnapshot, doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { db } from '../../config/firebase';
+import { useAuth } from '../../contexts/AuthContext';
+import StatusBadge from '../../components/StatusBadge';
+import { FileText, DollarSign, Calendar, Shield, Percent, CheckCircle } from 'lucide-react';
+
+// Risk appetite determines which invoices a funder can see
+// HIGH risk taker → sees ALL invoices (including risky ones)
+// MEDIUM → sees LOW + MEDIUM risk invoices
+// LOW (safe player) → sees only LOW risk invoices
+const RISK_LEVELS = {
+  HIGH:   { label: 'High Risk Taker',  desc: 'See all invoices including risky ones', minScore: 0 },
+  MEDIUM: { label: 'Moderate',          desc: 'See medium and low risk invoices',      minScore: 55 },
+  LOW:    { label: 'Safe Player',       desc: 'See only low risk invoices',            minScore: 75 },
+};
+
+export default function AvailableInvoices() {
+  const { user } = useAuth();
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [riskAppetite, setRiskAppetite] = useState('MEDIUM');
+  const [bidRates, setBidRates] = useState({});    // { invoiceId: '8.5' }
+  const [offeringId, setOfferingId] = useState(null);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, 'invoices'),
+      where('status', 'in', ['verified', 'matched'])
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setInvoices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLoading(false);
+    }, () => setLoading(false));
+    return unsub;
+  }, []);
+
+  const handleBid = async (invoice) => {
+    const rate = parseFloat(bidRates[invoice.id]);
+    if (!rate || rate <= 0 || rate > 50) {
+      alert('Please enter a valid discount rate between 0.1% and 50%');
+      return;
+    }
+
+    setOfferingId(invoice.id);
+    try {
+      const discountAmount = Math.round(invoice.amount * (rate / 100));
+      const msmeReceives = invoice.amount - discountAmount;
+
+      await updateDoc(doc(db, 'invoices', invoice.id), {
+        status: 'matched',
+        agentStage: 3,
+        'stageStatuses.matching': 'completed',
+        matchedFunders: arrayUnion({
+          funderId: user.uid,
+          name: user.displayName || user.email?.split('@')[0] || 'Funder',
+          rate: rate,
+          amount: invoice.amount,
+          discountAmount,
+          msmeReceives,
+          type: 'NBFC',
+          offeredAt: new Date().toISOString()
+        })
+      });
+      setBidRates(prev => ({ ...prev, [invoice.id]: '' }));
+    } catch (err) {
+      console.error('Bid error:', err);
+      alert('Failed to submit bid: ' + err.message);
+    } finally {
+      setOfferingId(null);
+    }
+  };
+
+  // Filter invoices by funder's risk appetite
+  const minScore = RISK_LEVELS[riskAppetite].minScore;
+  const filteredInvoices = invoices.filter(inv => {
+    const score = inv.riskResult?.riskScore || 0;
+    return score >= minScore;
+  });
+
+  return (
+    <div className="animate-fade-in">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Available Invoices</h1>
+          <p className="text-surface-400 mt-1">Place bids on invoices matching your risk profile</p>
+        </div>
+      </div>
+
+      {/* Risk Appetite Selector */}
+      <div className="glass-card p-4 mb-6">
+        <p className="text-sm font-semibold text-surface-300 mb-3">Your Risk Appetite</p>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(RISK_LEVELS).map(([key, { label, desc }]) => (
+            <button
+              key={key}
+              onClick={() => setRiskAppetite(key)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
+                riskAppetite === key
+                  ? key === 'HIGH' ? 'bg-danger-500/20 text-danger-400 border-danger-500/30'
+                    : key === 'MEDIUM' ? 'bg-warning-500/20 text-warning-400 border-warning-500/30'
+                    : 'bg-accent-500/20 text-accent-400 border-accent-500/30'
+                  : 'bg-surface-800/50 text-surface-400 border-surface-700 hover:text-white'
+              }`}
+            >
+              {key === 'HIGH' ? '🔥' : key === 'MEDIUM' ? '⚖️' : '🛡️'} {label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-surface-500 mt-2">{RISK_LEVELS[riskAppetite].desc} (min score: {minScore})</p>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="w-10 h-10 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
+        </div>
+      ) : filteredInvoices.length === 0 ? (
+        <div className="glass-card p-16 text-center">
+          <FileText size={48} className="text-surface-600 mx-auto mb-4" />
+          <p className="text-surface-400 text-lg">No invoices match your risk profile</p>
+          <p className="text-surface-500 text-sm mt-2">Try changing your risk appetite to see more invoices</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredInvoices.map((inv) => {
+            const alreadyBid = inv.matchedFunders?.some(f => f.funderId === user.uid);
+            const myBid = inv.matchedFunders?.find(f => f.funderId === user.uid);
+            const riskScore = inv.riskResult?.riskScore || 0;
+            const riskColor = riskScore >= 75 ? 'text-accent-400' : riskScore >= 55 ? 'text-warning-400' : 'text-danger-400';
+
+            return (
+              <div key={inv.id} className="glass-card p-6 hover:glow-primary transition-all duration-300">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0, 8)}</h3>
+                    <p className="text-surface-400 text-sm mt-0.5">MSME: {inv.msmeEmail?.split('@')[0] || 'N/A'}</p>
+                  </div>
+                  <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                    inv.matchedFunders?.length > 0 ? 'bg-warning-500/15 text-warning-400' : 'bg-accent-500/15 text-accent-400'
+                  }`}>
+                    {inv.matchedFunders?.length > 0 ? `${inv.matchedFunders.length} bid(s)` : 'Open'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="bg-surface-800/50 p-3 rounded-xl">
+                    <div className="flex items-center gap-2 mb-1">
+                      <DollarSign size={14} className="text-primary-400" />
+                      <span className="text-xs text-surface-500">Invoice Value</span>
+                    </div>
+                    <p className="text-sm font-bold text-white">₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
+                  </div>
+                  <div className="bg-surface-800/50 p-3 rounded-xl">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Calendar size={14} className="text-warning-400" />
+                      <span className="text-xs text-surface-500">Due Date</span>
+                    </div>
+                    <p className="text-sm font-bold text-white">{inv.dueDate || 'N/A'}</p>
+                  </div>
+                  <div className="bg-surface-800/50 p-3 rounded-xl">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Shield size={14} className="text-accent-400" />
+                      <span className="text-xs text-surface-500">Risk Score</span>
+                    </div>
+                    <p className={`text-sm font-bold ${riskColor}`}>
+                      {riskScore}/100 ({inv.riskResult?.grade || 'N/A'})
+                    </p>
+                  </div>
+                  <div className="bg-surface-800/50 p-3 rounded-xl">
+                    <div className="flex items-center gap-2 mb-1">
+                      <FileText size={14} className="text-surface-400" />
+                      <span className="text-xs text-surface-500">Buyer</span>
+                    </div>
+                    <p className="text-sm font-bold text-white truncate">{inv.buyerName || 'N/A'}</p>
+                  </div>
+                </div>
+
+                {alreadyBid ? (
+                  <div className="w-full py-2.5 rounded-xl bg-accent-500/15 border border-accent-500/30 text-accent-400 text-sm font-semibold flex items-center justify-center gap-2">
+                    <CheckCircle size={16} /> Bid Placed at {myBid?.rate}% (MSME gets ₹{(myBid?.msmeReceives || 0).toLocaleString('en-IN')})
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {/* Bid input */}
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0.1"
+                          max="50"
+                          placeholder="Enter discount %"
+                          value={bidRates[inv.id] || ''}
+                          onChange={(e) => setBidRates(prev => ({ ...prev, [inv.id]: e.target.value }))}
+                          className="w-full px-4 py-2.5 rounded-xl bg-surface-800/50 border border-surface-700/50 text-white text-sm outline-none focus:border-primary-500/50 transition-all pr-8"
+                        />
+                        <Percent size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-500" />
+                      </div>
+                      <button
+                        onClick={() => handleBid(inv)}
+                        disabled={offeringId === inv.id || !bidRates[inv.id]}
+                        className="px-5 py-2.5 gradient-primary rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {offeringId === inv.id ? (
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <><DollarSign size={14} /> Bid</>
+                        )}
+                      </button>
+                    </div>
+                    {/* Preview what MSME receives */}
+                    {bidRates[inv.id] && parseFloat(bidRates[inv.id]) > 0 && (
+                      <p className="text-xs text-surface-400 px-1">
+                        MSME receives: <span className="text-white font-medium">
+                          ₹{(inv.amount - Math.round(inv.amount * (parseFloat(bidRates[inv.id]) / 100))).toLocaleString('en-IN')}
+                        </span>
+                        {' '}(discount: ₹{Math.round(inv.amount * (parseFloat(bidRates[inv.id]) / 100)).toLocaleString('en-IN')})
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
