@@ -13,7 +13,10 @@ export default function MSMEDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     const q = query(
       collection(db, 'invoices'),
       where('msmeId', '==', user.uid),
@@ -21,6 +24,9 @@ export default function MSMEDashboard() {
     );
     const unsub = onSnapshot(q, (snap) => {
       setInvoices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLoading(false);
+    }, (error) => {
+      console.error('Error fetching invoices:', error);
       setLoading(false);
     });
     return unsub;
@@ -51,10 +57,10 @@ export default function MSMEDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={FileText} label="Total Invoices" value={stats.total} change="12%" color="primary" />
-        <StatCard icon={CheckCircle} label="Verified" value={stats.verified} change="8%" color="accent" />
-        <StatCard icon={DollarSign} label="Funded" value={stats.funded} change="15%" color="warning" />
-        <StatCard icon={TrendingUp} label="Total Value" value={`₹${(stats.totalAmount / 100000).toFixed(1)}L`} change="22%" color="primary" />
+        <StatCard icon={FileText} label="Total Invoices" value={stats.total} color="primary" />
+        <StatCard icon={CheckCircle} label="Verified" value={stats.verified} color="accent" />
+        <StatCard icon={DollarSign} label="Funded" value={stats.funded} color="warning" />
+        <StatCard icon={TrendingUp} label="Total Value" value={`₹${(stats.totalAmount / 100000).toFixed(1)}L`} color="primary" />
       </div>
 
       {/* Recent Invoices */}

@@ -60,7 +60,8 @@
   --th-bg-card: rgba(255, 255, 255, 0.92);
   --th-bg-card-hover: rgba(241, 245, 249, 0.95);
   --th-bg-sidebar: #ffffff;
-  --th-bg-input: #f1f4f9;
+  --th-bg-input: #e8f0fe;
+  --th-border-input: #1a3b7d;
   --th-border: #e2e8f0;
   --th-border-subtle: rgba(226, 232, 240, 0.6);
   --th-text: #0a0f2e;
@@ -86,7 +87,8 @@
   --th-bg-card: rgba(15, 26, 62, 0.7);
   --th-bg-card-hover: rgba(15, 26, 62, 0.9);
   --th-bg-sidebar: rgba(8, 16, 58, 0.95);
-  --th-bg-input: rgba(15, 26, 62, 0.6);
+  --th-bg-input: rgba(30, 58, 138, 0.25);
+  --th-border-input: #3b82f6;
   --th-border: rgba(30, 42, 74, 0.6);
   --th-border-subtle: rgba(30, 42, 74, 0.3);
   --th-text: #f1f5f9;
@@ -131,6 +133,24 @@
   ::-webkit-scrollbar-thumb {
     background: var(--th-scrollbar-thumb);
     border-radius: 3px;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  textarea,
+  select {
+    background-color: var(--th-bg-input) !important;
+    border: 1.5px solid var(--th-border-input) !important;
+    border-radius: 10px;
+    color: var(--th-text);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+  textarea:focus,
+  select:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    outline: none;
   }
 }
 
