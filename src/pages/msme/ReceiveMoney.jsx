@@ -16,7 +16,7 @@ export default function ReceiveMoney() {
     const q = query(
       collection(db, 'invoices'),
       where('msmeId', '==', user.uid),
-      where('status', 'in', ['funded', 'settled'])
+      where('status', 'in', ['accepted', 'funded', 'settled'])
     );
     const unsub = onSnapshot(q, (snap) => {
       setInvoices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -25,9 +25,10 @@ export default function ReceiveMoney() {
     return unsub;
   }, [user]);
 
-  const settled = invoices.filter(i => i.status === 'settled');
-  const pending = invoices.filter(i => i.status === 'funded');
-  const totalReceived = settled.reduce((sum, i) => sum + (i.acceptedFunder?.msmeReceives || i.amount || 0), 0);
+  // funded & settled = money received; accepted = awaiting funder disbursement
+  const received = invoices.filter(i => i.status === 'funded' || i.status === 'settled');
+  const pending = invoices.filter(i => i.status === 'accepted');
+  const totalReceived = received.reduce((sum, i) => sum + (i.acceptedFunder?.msmeReceives || i.amount || 0), 0);
   const totalPending = pending.reduce((sum, i) => sum + (i.acceptedFunder?.msmeReceives || i.amount || 0), 0);
 
   return (
@@ -64,12 +65,12 @@ export default function ReceiveMoney() {
               <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-surface-800/30 rounded-xl border border-surface-800 gap-3">
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    inv.status === 'settled' ? 'bg-accent-500/15' : 'bg-warning-500/15'
+                    inv.status === 'accepted' ? 'bg-warning-500/15' : 'bg-accent-500/15'
                   }`}>
-                    {inv.status === 'settled' ? (
-                      <CheckCircle size={18} className="text-accent-400" />
-                    ) : (
+                    {inv.status === 'accepted' ? (
                       <Clock size={18} className="text-warning-400" />
+                    ) : (
+                      <CheckCircle size={18} className="text-accent-400" />
                     )}
                   </div>
                   <div>

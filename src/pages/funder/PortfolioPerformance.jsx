@@ -30,7 +30,7 @@ export default function PortfolioPerformance() {
   }, [user]);
 
   const funded = investments.filter(i => i.acceptedFunder?.funderId === user?.uid);
-  const totalFunded = funded.reduce((sum, i) => sum + (i.amount || 0), 0);
+  const totalFunded = funded.reduce((sum, i) => sum + (i.acceptedFunder?.msmeReceives || i.amount || 0), 0);
   const avgRate = funded.length > 0
     ? (funded.reduce((sum, i) => sum + (i.acceptedFunder?.rate || 0), 0) / funded.length).toFixed(1)
     : '0';
