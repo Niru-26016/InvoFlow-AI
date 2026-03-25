@@ -1,10 +1,13 @@
 import { CheckCircle, Clock, Loader2, AlertCircle } from 'lucide-react';
 
 const stages = [
-  { key: 'verification', label: 'Invoice Verification', description: 'Validating against GST network' },
-  { key: 'risk', label: 'Buyer Risk Assessment', description: 'Analyzing creditworthiness' },
-  { key: 'matching', label: 'Funder Matching', description: 'Finding best funders' },
-  { key: 'settlement', label: 'Settlement', description: 'Processing payment' },
+  { key: 'upload', label: 'Invoice Upload', description: 'MSME uploads invoice for AI verification' },
+  { key: 'verification', label: 'Buyer Verification', description: 'Buyer confirms invoice details & identity' },
+  { key: 'risk', label: 'Risk Assessment', description: 'AI analyzes buyer creditworthiness' },
+  { key: 'bidding', label: 'Funder Bidding', description: 'Funders place discount bids on invoice' },
+  { key: 'acceptance', label: 'MSME Acceptance', description: 'MSME reviews and accepts a funder bid' },
+  { key: 'funding', label: 'Funder Disbursement', description: 'Funder pays discounted amount to MSME' },
+  { key: 'settlement', label: 'Settlement', description: 'Buyer pays full invoice amount to funder' },
 ];
 
 const stageIcons = {

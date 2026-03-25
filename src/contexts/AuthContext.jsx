@@ -15,6 +15,7 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,26 +24,32 @@ export function AuthProvider({ children }) {
         setUser(firebaseUser);
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
         if (userDoc.exists()) {
-          setUserRole(userDoc.data().role);
+          const data = userDoc.data();
+          setUserRole(data.role);
+          setUserProfile(data);
         }
       } else {
         setUser(null);
         setUserRole(null);
+        setUserProfile(null);
       }
       setLoading(false);
     });
     return unsubscribe;
   }, []);
 
-  const register = async (email, password, role, companyName) => {
+  const register = async (email, password, role, companyName, gstin) => {
     const result = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, 'users', result.user.uid), {
+    const profile = {
       email,
       role,
       companyName,
       createdAt: new Date().toISOString()
-    });
+    };
+    if (gstin) profile.gstin = gstin;
+    await setDoc(doc(db, 'users', result.user.uid), profile);
     setUserRole(role);
+    setUserProfile(profile);
     return result;
   };
 
@@ -50,7 +57,9 @@ export function AuthProvider({ children }) {
     const result = await signInWithEmailAndPassword(auth, email, password);
     const userDoc = await getDoc(doc(db, 'users', result.user.uid));
     if (userDoc.exists()) {
-      setUserRole(userDoc.data().role);
+      const data = userDoc.data();
+      setUserRole(data.role);
+      setUserProfile(data);
     }
     return result;
   };
@@ -59,9 +68,10 @@ export function AuthProvider({ children }) {
     await signOut(auth);
     setUser(null);
     setUserRole(null);
+    setUserProfile(null);
   };
 
-  const value = { user, userRole, loading, register, login, logout };
+  const value = { user, userRole, userProfile, loading, register, login, logout };
 
   return (
     <AuthContext.Provider value={value}>

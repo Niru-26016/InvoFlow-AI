@@ -14,7 +14,7 @@ export default function PortfolioPerformance() {
     if (!user) return;
     const q = query(
       collection(db, 'invoices'),
-      where('status', 'in', ['matched', 'funded', 'settled'])
+      where('status', 'in', ['bidding', 'funded', 'settled'])
     );
     const unsub = onSnapshot(q, (snap) => {
       const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -99,12 +99,12 @@ export default function PortfolioPerformance() {
           )}
 
           {/* Pending Offers (made offer but not yet accepted by MSME) */}
-          {investments.filter(i => i.acceptedFunder?.funderId !== user?.uid && i.status === 'matched').length > 0 && (
+          {investments.filter(i => i.acceptedFunder?.funderId !== user?.uid && i.status === 'bidding').length > 0 && (
             <div className="glass-card p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Pending Offers</h3>
               <div className="space-y-3">
                 {investments
-                  .filter(i => i.acceptedFunder?.funderId !== user?.uid && i.status === 'matched')
+                  .filter(i => i.acceptedFunder?.funderId !== user?.uid && i.status === 'bidding')
                   .map(inv => {
                     const myOffer = inv.matchedFunders?.find(f => f.funderId === user?.uid);
                     return (

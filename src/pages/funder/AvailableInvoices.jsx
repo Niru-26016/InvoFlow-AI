@@ -3,7 +3,7 @@ import { collection, query, where, onSnapshot, doc, updateDoc, arrayUnion } from
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
-import { FileText, DollarSign, Calendar, Shield, Percent, CheckCircle } from 'lucide-react';
+import { FileText, DollarSign, Calendar, Shield, Percent, CheckCircle, Banknote, Loader2 } from 'lucide-react';
 
 // Risk appetite determines which invoices a funder can see
 // HIGH risk taker → sees ALL invoices (including risky ones)
@@ -22,11 +22,13 @@ export default function AvailableInvoices() {
   const [riskAppetite, setRiskAppetite] = useState('MEDIUM');
   const [bidRates, setBidRates] = useState({});    // { invoiceId: '8.5' }
   const [offeringId, setOfferingId] = useState(null);
+  const [disbursingId, setDisbursingId] = useState(null);
+  const [acceptedInvoices, setAcceptedInvoices] = useState([]);
 
   useEffect(() => {
     const q = query(
       collection(db, 'invoices'),
-      where('status', 'in', ['verified', 'matched'])
+      where('status', 'in', ['verified', 'bidding'])
     );
     const unsub = onSnapshot(q, (snap) => {
       setInvoices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -34,6 +36,39 @@ export default function AvailableInvoices() {
     }, () => setLoading(false));
     return unsub;
   }, []);
+
+  // Listen for invoices where this funder's bid was accepted
+  useEffect(() => {
+    if (!user) return;
+    const q2 = query(
+      collection(db, 'invoices'),
+      where('status', 'in', ['accepted', 'funded'])
+    );
+    const unsub = onSnapshot(q2, (snap) => {
+      const myAccepted = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(inv => inv.acceptedFunder?.funderId === user.uid);
+      setAcceptedInvoices(myAccepted);
+    });
+    return unsub;
+  }, [user]);
+
+  const handleDisburse = async (invoice) => {
+    setDisbursingId(invoice.id);
+    try {
+      await updateDoc(doc(db, 'invoices', invoice.id), {
+        status: 'funded',
+        fundedAt: new Date().toISOString(),
+        agentStage: 6,
+        'stageStatuses.funding': 'completed',
+        'stageStatuses.settlement': 'active'
+      });
+    } catch (err) {
+      alert('Disbursement failed: ' + err.message);
+    } finally {
+      setDisbursingId(null);
+    }
+  };
 
   const handleBid = async (invoice) => {
     const rate = parseFloat(bidRates[invoice.id]);
@@ -48,9 +83,9 @@ export default function AvailableInvoices() {
       const msmeReceives = invoice.amount - discountAmount;
 
       await updateDoc(doc(db, 'invoices', invoice.id), {
-        status: 'matched',
+        status: 'bidding',
         agentStage: 3,
-        'stageStatuses.matching': 'completed',
+        'stageStatuses.bidding': 'completed',
         matchedFunders: arrayUnion({
           funderId: user.uid,
           name: user.displayName || user.email?.split('@')[0] || 'Funder',
@@ -109,6 +144,74 @@ export default function AvailableInvoices() {
         </div>
         <p className="text-xs text-surface-500 mt-2">{RISK_LEVELS[riskAppetite].desc} (min score: {minScore})</p>
       </div>
+
+      {/* ─── Pending Disbursements ─── */}
+      {acceptedInvoices.filter(i => i.status === 'accepted').length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Banknote size={20} className="text-warning-400" />
+            Pending Disbursements ({acceptedInvoices.filter(i => i.status === 'accepted').length})
+          </h2>
+          <div className="space-y-3">
+            {acceptedInvoices.filter(i => i.status === 'accepted').map((inv) => (
+              <div key={inv.id} className="glass-card p-5 border-warning-500/20">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-base font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0, 8)}</h3>
+                    <p className="text-surface-400 text-sm mt-0.5">
+                      MSME: {inv.msmeCompanyName || 'N/A'} • Buyer: {inv.buyerName}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="text-xs text-surface-500">Amount to Pay</p>
+                      <p className="text-lg font-bold text-white">
+                        ₹{(inv.acceptedFunder?.msmeReceives || inv.amount).toLocaleString('en-IN')}
+                      </p>
+                      <p className="text-xs text-surface-500">
+                        Invoice: ₹{(inv.amount || 0).toLocaleString('en-IN')} • Discount: {inv.acceptedFunder?.rate}%
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDisburse(inv)}
+                      disabled={disbursingId === inv.id}
+                      className="px-5 py-3 gradient-accent rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {disbursingId === inv.id ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <><Banknote size={16} /> Disburse Payment</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Funded History */}
+      {acceptedInvoices.filter(i => i.status === 'funded').length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-4">
+            Recently Funded ({acceptedInvoices.filter(i => i.status === 'funded').length})
+          </h2>
+          <div className="space-y-3">
+            {acceptedInvoices.filter(i => i.status === 'funded').map((inv) => (
+              <div key={inv.id} className="glass-card p-4 opacity-75">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0, 8)}</p>
+                    <p className="text-xs text-surface-400">Paid ₹{(inv.acceptedFunder?.msmeReceives || 0).toLocaleString('en-IN')} to {inv.msmeCompanyName || 'MSME'}</p>
+                  </div>
+                  <StatusBadge status="funded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-20">

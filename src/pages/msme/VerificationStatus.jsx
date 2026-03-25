@@ -130,7 +130,7 @@ export default function VerificationStatus() {
                             <p className="text-xs text-surface-500 mt-1 italic">{selectedInvoice.verificationResult.message}</p>
                           )}
                           {selectedInvoice.verificationResult.extractedData && (
-                            <div className="mt-3 text-xs text-surface-400 bg-surface-900/50 p-3 rounded-lg border border-surface-700/50">
+                            <div className="mt-3 text-xs text-blue-300 bg-blue-500/10 p-3 rounded-lg border border-blue-400/20">
                               <p className="font-semibold text-surface-300 mb-1">Extracted Details:</p>
                               <ul className="list-disc pl-4 space-y-1">
                                 <li>Name: {selectedInvoice.verificationResult.extractedData.buyerName || 'N/A'}</li>

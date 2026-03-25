@@ -28,7 +28,7 @@ export default function MSMEDashboard() {
 
   const stats = {
     total: invoices.length,
-    verified: invoices.filter(i => i.status === 'verified' || i.status === 'funded' || i.status === 'matched').length,
+    verified: invoices.filter(i => i.status === 'verified' || i.status === 'funded' || i.status === 'bidding').length,
     funded: invoices.filter(i => i.status === 'funded' || i.status === 'settled').length,
     totalAmount: invoices.reduce((sum, i) => sum + (i.amount || 0), 0),
   };

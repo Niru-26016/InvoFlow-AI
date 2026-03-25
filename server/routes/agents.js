@@ -8,18 +8,17 @@ const openai = new OpenAI({
 
 // One-Shot Analyze & Extract invoice data using OpenAI Vision
 router.post('/analyze', async (req, res) => {
-  const { file, msmeId } = req.body;
+  const { file, msmeId, msmeProfile } = req.body;
   if (!file || !process.env.OPENAI_API_KEY) {
     return res.status(400).json({ error: 'File or API Key missing' });
   }
 
   try {
-    // Look up MSME context (mock data for dev)
-    let msmeContext = JSON.stringify({
+    // Use real MSME profile from Firestore (passed by frontend)
+    const msmeContext = JSON.stringify({
       msmeId: msmeId || 'UNKNOWN',
-      name: 'ABC Traders Pvt Ltd',
-      gst: '33ABCDE1234F1Z5',
-      location: 'Chennai'
+      name: msmeProfile?.name || 'Not Provided',
+      gst: msmeProfile?.gstin || 'Not Provided',
     });
 
     const aiPrompt = `
@@ -37,9 +36,16 @@ router.post('/analyze', async (req, res) => {
       Here are the Registered Details of the Seller (MSME) uploading this invoice:
       ${msmeContext}
 
-      CRITICAL CHECKS:
-      1. Does the Seller Name on the invoice match the registered MSME name?
-      2. Does the Seller GSTIN on the invoice match the registered MSME GSTIN?
+      STRICT VERIFICATION RULES:
+      1. Compare the SELLER NAME on the invoice with the registered MSME name above.
+         - Use fuzzy matching: ignore case, extra spaces, and legal suffixes like "Pvt Ltd", "Private Limited", "LLP", "Inc".
+         - The core business name MUST match. "ABC Traders" matches "ABC Traders Pvt Ltd", but "ABC Traders" does NOT match "XYZ Traders".
+      2. Compare the SELLER GSTIN on the invoice with the registered MSME GSTIN above.
+         - MUST be an exact match (case-insensitive). "33ABCDE1234F1Z5" matches "33abcde1234f1z5".
+      3. If the registered name is "Not Provided" or empty, the name check is INCONCLUSIVE — do NOT auto-pass, mark verified=false with message "Seller profile incomplete. Cannot verify name."
+      4. If the registered GSTIN is "Not Provided" or empty, the GSTIN check is INCONCLUSIVE — do NOT auto-pass, mark verified=false with message "Seller GSTIN not registered. Cannot verify GSTIN."
+      5. ONLY set verified=true if BOTH name AND GSTIN checks explicitly PASS (both are provided AND both match).
+      6. If ANY check fails or is inconclusive, set verified=false.
 
       Return a JSON object with this exact structure:
       {
@@ -52,7 +58,7 @@ router.post('/analyze', async (req, res) => {
           "description": "text"
         },
         "verified": boolean,
-        "message": "If verified successfully: 'Invoice Verified Successfully.' If failed: 'Verification Failed. Expected [Field] to be [Registered Value] but retrieved [Extracted Value] from document.'",
+        "message": "If verified: 'All checks passed. Invoice is authentic.' If failed: list mismatches generically (e.g. 'Seller name mismatch detected.'). Do NOT reveal expected or retrieved values.",
         "confidence": 0.0 to 1.0
       }
     `;

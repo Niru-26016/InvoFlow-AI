@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
-import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function UploadInvoice() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [form, setForm] = useState({
     buyerName: '', buyerGSTIN: '', invoiceNumber: '', amount: '', dueDate: '', description: ''
   });
@@ -31,7 +31,42 @@ export default function UploadInvoice() {
     setForm({ buyerName: '', buyerGSTIN: '', invoiceNumber: '', amount: '', dueDate: '', description: '' });
 
     try {
-      // Convert file to base64
+      // Step 1: Fetch MSME profile from the 'msmes' collection in Firestore
+      let msmeProfile = { name: '', gstin: '' };
+
+      // Try matching by GSTIN first (most reliable)
+      if (userProfile?.gstin) {
+        const byGst = await getDocs(query(collection(db, 'msmes'), where('gst', '==', userProfile.gstin)));
+        if (!byGst.empty) {
+          const d = byGst.docs[0].data();
+          msmeProfile = { name: d.name || '', gstin: d.gst || '' };
+        }
+      }
+
+      // If not found by GSTIN, try by company name
+      if (!msmeProfile.name && userProfile?.companyName) {
+        const byName = await getDocs(query(collection(db, 'msmes'), where('name', '==', userProfile.companyName)));
+        if (!byName.empty) {
+          const d = byName.docs[0].data();
+          msmeProfile = { name: d.name || '', gstin: d.gst || '' };
+        }
+      }
+
+      // Fallback: use auth profile directly
+      if (!msmeProfile.name && !msmeProfile.gstin) {
+        msmeProfile = {
+          name: userProfile?.companyName || '',
+          gstin: userProfile?.gstin || ''
+        };
+      }
+
+      if (!msmeProfile.name && !msmeProfile.gstin) {
+        setError('MSME profile not found. Please ensure your Company Name and GSTIN are registered in the system.');
+        setExtracting(false);
+        return;
+      }
+
+      // Step 2: Convert file to base64
       const fileBase64 = await new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result.split(',')[1]);
@@ -41,7 +76,8 @@ export default function UploadInvoice() {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
       const response = await axios.post(`${backendUrl}/api/agents/analyze`, {
         file: { name: selectedFile.name, data: fileBase64 },
-        msmeId: user.uid
+        msmeId: user.uid,
+        msmeProfile
       });
 
       if (response.data.success && response.data.analysis) {
@@ -74,24 +110,38 @@ export default function UploadInvoice() {
       setError('Please upload an invoice first. AI extraction must complete before submission.');
       return;
     }
+    if (!analysisResult.verified) {
+      setError('Invoice rejected: Seller details on the invoice do not match your registered profile. You cannot submit a mismatched invoice.');
+      return;
+    }
 
     setSubmitting(true);
     setError('');
 
     try {
+      const authenticity = analysisResult.verified ? 'authentic' : 'suspicious';
       await addDoc(collection(db, 'invoices'), {
         ...form,
         msmeId: user.uid,
+        msmeCompanyName: userProfile?.companyName || '',
         verified: false, // Wait for buyer
         confidence: analysisResult.confidence,
+        authenticity,
         status: 'pending',
         createdAt: new Date().toISOString(),
-        agentStage: 0, // Wait for buyer approval
+        agentStage: 1,
         buyerConfirmed: false,
+        stageStatuses: {
+          upload: 'completed',
+          verification: 'active'
+        },
         verificationResult: {
           verified: analysisResult.verified,
           confidence: analysisResult.confidence,
-          message: 'Waiting for Buyer Approval. AI Pre-check passed.',
+          authenticity,
+          message: analysisResult.verified
+            ? 'AI verified: Authentic. Waiting for Buyer Approval.'
+            : 'AI flagged: Suspicious. Mismatches detected. Waiting for Buyer review.',
           extractedData: form
         }
       });
@@ -143,24 +193,49 @@ export default function UploadInvoice() {
           </label>
         </div>
 
-        {/* Result Status */}
+        {/* Authenticity Result */}
         {analysisResult && (
-          <div className={`mb-8 p-6 rounded-xl border ${analysisResult.verified ? 'bg-success-500/10 border-success-500/30' : 'bg-danger-500/10 border-danger-500/30'}`}>
-            <div className="flex items-center gap-3 mb-2">
+          <div className={`mb-8 p-6 rounded-xl border ${
+            analysisResult.verified
+              ? 'bg-success-500/10 border-success-500/30'
+              : 'bg-danger-500/10 border-danger-500/30'
+          }`}>
+            <div className="flex items-center gap-3 mb-3">
               {analysisResult.verified ? (
-                <CheckCircle className="text-success-400" size={24} />
+                <ShieldCheck className="text-success-400" size={28} />
               ) : (
-                <AlertCircle className="text-danger-400" size={24} />
+                <ShieldAlert className="text-danger-400" size={28} />
               )}
-              <h3 className={`font-semibold text-lg ${analysisResult.verified ? 'text-success-400' : 'text-danger-400'}`}>
-                {analysisResult.verified ? 'Invoice Verified Successfully' : 'Verification Failed'}
-              </h3>
+              <div>
+                <h3 className={`font-bold text-lg ${
+                  analysisResult.verified ? 'text-success-400' : 'text-danger-400'
+                }`}>
+                  {analysisResult.verified ? '✅ Authentic Invoice' : '❌ Invoice Rejected'}
+                </h3>
+                {analysisResult.verified && (
+                  <p className="text-surface-400 text-xs mt-0.5">
+                    AI Review Complete • Confidence: {Math.round(analysisResult.confidence * 100)}%
+                  </p>
+                )}
+              </div>
             </div>
-            <p className="text-surface-300 text-sm ml-9">{analysisResult.message}</p>
-            {analysisResult.verified && (
-               <div className="mt-4 ml-9 px-3 py-1 bg-surface-800/50 border border-surface-700 rounded text-xs text-primary-300 inline-block font-mono">
-                 AI Confidence: {Math.round(analysisResult.confidence * 100)}%
-               </div>
+            <p className="text-surface-300 text-sm ml-10 mb-3">{analysisResult.message}</p>
+            <div className="ml-10 flex items-center gap-3">
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                analysisResult.verified
+                  ? 'bg-success-500/15 text-success-400 border-success-500/30'
+                  : 'bg-danger-500/15 text-danger-400 border-danger-500/30'
+              }`}>
+                {analysisResult.verified ? 'AUTHENTIC' : 'REJECTED'}
+              </span>
+              {analysisResult.verified && (
+                <span className="px-3 py-1 bg-surface-800/50 border border-surface-700 rounded-full text-xs text-primary-300 font-mono">
+                  Score: {Math.round(analysisResult.confidence * 100)}/100
+                </span>
+              )}
+            </div>
+            {!analysisResult.verified && (
+              <p className="text-danger-400 text-xs mt-3 ml-10">❌ This invoice has been rejected due to seller detail mismatches. You cannot submit this invoice.</p>
             )}
           </div>
         )}
@@ -223,11 +298,17 @@ export default function UploadInvoice() {
               <div className="flex items-end">
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className="w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-primary-500/20 flex items-center justify-center gap-2"
+                  disabled={submitting || (analysisResult && !analysisResult.verified)}
+                  className={`w-full font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 ${
+                    analysisResult && !analysisResult.verified
+                      ? 'bg-surface-700 text-surface-500 cursor-not-allowed'
+                      : 'bg-primary-600 hover:bg-primary-500 text-white shadow-lg shadow-primary-500/20'
+                  }`}
                 >
                   {submitting ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : analysisResult && !analysisResult.verified ? (
+                    <>❌ Rejected — Cannot Submit</>
                   ) : (
                     <>Submit to Database <CheckCircle size={18} /></>
                   )}

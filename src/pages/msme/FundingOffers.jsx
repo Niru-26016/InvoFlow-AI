@@ -16,7 +16,7 @@ export default function FundingOffers() {
     const q = query(
       collection(db, 'invoices'),
       where('msmeId', '==', user.uid),
-      where('status', 'in', ['matched', 'funded'])
+      where('status', 'in', ['bidding', 'accepted', 'funded'])
     );
     const unsub = onSnapshot(q, (snap) => {
       setInvoices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -29,11 +29,13 @@ export default function FundingOffers() {
     setAcceptingId(invoiceId + funder.funderId);
     try {
       await updateDoc(doc(db, 'invoices', invoiceId), {
-        status: 'funded',
+        status: 'accepted',
         acceptedFunder: funder,
-        fundedAt: new Date().toISOString(),
-        agentStage: 4,
-        'stageStatuses.settlement': 'completed'
+        acceptedAt: new Date().toISOString(),
+        agentStage: 5,
+        'stageStatuses.bidding': 'completed',
+        'stageStatuses.acceptance': 'completed',
+        'stageStatuses.funding': 'active'
       });
     } catch (err) {
       alert('Failed to accept: ' + err.message);
@@ -81,12 +83,15 @@ export default function FundingOffers() {
 
                 {/* Already accepted */}
                 {inv.acceptedFunder && (
-                  <div className="p-4 rounded-xl bg-accent-500/10 border border-accent-500/20 mb-4">
-                    <p className="text-sm text-accent-400 font-semibold flex items-center gap-2">
-                      <CheckCircle size={16} /> Accepted: {inv.acceptedFunder.name} at {inv.acceptedFunder.rate}% discount
+                  <div className={`p-4 rounded-xl border mb-4 ${inv.status === 'funded' ? 'bg-accent-500/10 border-accent-500/20' : 'bg-warning-500/10 border-warning-500/20'}`}>
+                    <p className={`text-sm font-semibold flex items-center gap-2 ${inv.status === 'funded' ? 'text-accent-400' : 'text-warning-400'}`}>
+                      <CheckCircle size={16} /> 
+                      {inv.status === 'funded' 
+                        ? `Payment Received from ${inv.acceptedFunder.name}` 
+                        : `Accepted: ${inv.acceptedFunder.name} at ${inv.acceptedFunder.rate}% — Awaiting Disbursement`}
                     </p>
                     <p className="text-xs text-surface-400 mt-1">
-                      You receive: ₹{(inv.acceptedFunder.msmeReceives || (inv.amount - Math.round(inv.amount * inv.acceptedFunder.rate / 100))).toLocaleString('en-IN')}
+                      You {inv.status === 'funded' ? 'received' : 'will receive'}: ₹{(inv.acceptedFunder.msmeReceives || (inv.amount - Math.round(inv.amount * inv.acceptedFunder.rate / 100))).toLocaleString('en-IN')}
                       {' '}• Discount: ₹{(inv.acceptedFunder.discountAmount || Math.round(inv.amount * inv.acceptedFunder.rate / 100)).toLocaleString('en-IN')}
                     </p>
                   </div>

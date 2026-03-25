@@ -33,7 +33,7 @@ const navigationConfig = {
       { path: '/buyer', label: 'Dashboard', icon: LayoutDashboard, end: true },
       { path: '/buyer/confirm', label: 'Confirm Invoice', icon: Building },
       { path: '/buyer/financing', label: 'Track Financing', icon: TrendingUp },
-      { path: '/buyer/payment', label: 'Make Payment', icon: CreditCard },
+      { path: '/buyer/payment', label: 'Pay Funder', icon: CreditCard },
     ]
   }
 };

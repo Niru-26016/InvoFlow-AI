@@ -10,7 +10,7 @@ const roles = [
 ];
 
 export default function Register() {
-  const [form, setForm] = useState({ email: '', password: '', confirmPassword: '', role: '', companyName: '' });
+  const [form, setForm] = useState({ email: '', password: '', confirmPassword: '', role: '', companyName: '', gstin: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register(form.email, form.password, form.role, form.companyName);
+      await register(form.email, form.password, form.role, form.companyName, form.gstin);
       const routes = { msme: '/msme', funder: '/funder', buyer: '/buyer' };
       navigate(routes[form.role]);
     } catch (err) {
@@ -114,6 +114,21 @@ export default function Register() {
                 placeholder="Enter company name"
               />
             </div>
+
+            {form.role === 'msme' && (
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--th-text-secondary)' }}>GSTIN</label>
+                <input
+                  type="text"
+                  value={form.gstin}
+                  onChange={(e) => updateForm('gstin', e.target.value.toUpperCase())}
+                  className="w-full px-4 py-3 rounded-xl border transition-all focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                  style={{ background: 'var(--th-bg-input)', borderColor: 'var(--th-border)', color: 'var(--th-text)' }}
+                  placeholder="e.g. 33ABCDE1234F1Z5"
+                  maxLength={15}
+                />
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: 'var(--th-text-secondary)' }}>Email</label>

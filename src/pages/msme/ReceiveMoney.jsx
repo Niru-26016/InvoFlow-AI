@@ -27,8 +27,8 @@ export default function ReceiveMoney() {
 
   const settled = invoices.filter(i => i.status === 'settled');
   const pending = invoices.filter(i => i.status === 'funded');
-  const totalReceived = settled.reduce((sum, i) => sum + (i.amount || 0), 0);
-  const totalPending = pending.reduce((sum, i) => sum + (i.amount || 0), 0);
+  const totalReceived = settled.reduce((sum, i) => sum + (i.acceptedFunder?.msmeReceives || i.amount || 0), 0);
+  const totalPending = pending.reduce((sum, i) => sum + (i.acceptedFunder?.msmeReceives || i.amount || 0), 0);
 
   return (
     <div className="animate-fade-in">
@@ -79,7 +79,10 @@ export default function ReceiveMoney() {
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <p className="text-sm font-bold text-white">₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
+                    <p className="text-sm font-bold text-white">₹{(inv.acceptedFunder?.msmeReceives || inv.amount || 0).toLocaleString('en-IN')}</p>
+                    <p className="text-xs text-surface-500">
+                      Invoice: ₹{(inv.amount || 0).toLocaleString('en-IN')} • Discount: {inv.acceptedFunder?.rate || 0}%
+                    </p>
                     <p className="text-xs text-surface-500">
                       {inv.fundedAt ? new Date(inv.fundedAt).toLocaleDateString('en-IN') : 'Pending'}
                     </p>

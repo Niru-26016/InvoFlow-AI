@@ -16,7 +16,7 @@ export default function FunderDashboard() {
   useEffect(() => {
     const q = query(
       collection(db, 'invoices'),
-      where('status', 'in', ['verified', 'matched', 'funded', 'settled'])
+      where('status', 'in', ['verified', 'bidding', 'funded', 'settled'])
     );
     const unsub = onSnapshot(q, (snap) => {
       const invoices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -35,7 +35,7 @@ export default function FunderDashboard() {
     return unsub;
   }, [user]);
 
-  const totalAvailable = allInvoices.filter(i => ['verified', 'matched'].includes(i.status)).length;
+  const totalAvailable = allInvoices.filter(i => ['verified', 'bidding'].includes(i.status)).length;
   const myOffers = myInvestments.length;
   const accepted = myInvestments.filter(i => i.acceptedFunder?.funderId === user?.uid).length;
   const totalFunded = myInvestments
@@ -76,12 +76,12 @@ export default function FunderDashboard() {
         <h3 className="text-lg font-semibold text-white mb-4">Available Opportunities</h3>
         <p className="text-surface-400 text-sm mb-4">{totalAvailable} invoices waiting for funding offers</p>
 
-        {allInvoices.filter(i => ['verified', 'matched'].includes(i.status)).length === 0 ? (
+        {allInvoices.filter(i => ['verified', 'bidding'].includes(i.status)).length === 0 ? (
           <p className="text-surface-500 text-sm">No invoices available yet. Check back after buyers confirm invoices.</p>
         ) : (
           <div className="space-y-3">
             {allInvoices
-              .filter(i => ['verified', 'matched'].includes(i.status))
+              .filter(i => ['verified', 'bidding'].includes(i.status))
               .slice(0, 5)
               .map(inv => (
                 <div key={inv.id} className="flex items-center justify-between p-3 bg-surface-800/30 rounded-xl">
@@ -121,7 +121,7 @@ export default function FunderDashboard() {
                 </div>
                 <span className={`text-xs px-3 py-1 rounded-full font-medium ${
                   inv.status === 'funded' ? 'bg-accent-500/15 text-accent-400' :
-                  inv.status === 'matched' ? 'bg-warning-500/15 text-warning-400' :
+                  inv.status === 'bidding' ? 'bg-warning-500/15 text-warning-400' :
                   'bg-surface-700 text-surface-400'
                 }`}>
                   {inv.status === 'funded' ? 'Funded ✓' : 'Pending'}

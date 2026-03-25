@@ -4,7 +4,7 @@ import { db } from '../../config/firebase';
 import StatusBadge from '../../components/StatusBadge';
 import { TrendingUp, ArrowRight, CheckCircle, Clock, DollarSign, Zap } from 'lucide-react';
 
-const stageLabels = ['Uploading', 'Verification', 'Risk Assessment', 'Funder Matching', 'Funded', 'Settlement'];
+const stageLabels = ['Upload', 'Verification', 'Risk', 'Bidding', 'MSME Accept', 'Funder Pays', 'Buyer Pays'];
 
 export default function TrackFinancing() {
   const [invoices, setInvoices] = useState([]);
@@ -23,7 +23,7 @@ export default function TrackFinancing() {
   }, []);
 
   const getStageFromStatus = (status) => {
-    const map = { pending: 0, verifying: 1, verified: 2, matched: 3, funded: 4, settled: 5 };
+    const map = { pending: 0, verifying: 1, verified: 2, bidding: 3, accepted: 4, funded: 5, settled: 6 };
     return map[status] || 0;
   };
 
@@ -53,7 +53,7 @@ export default function TrackFinancing() {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
                   <div>
                     <h3 className="text-lg font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0,8)}</h3>
-                    <p className="text-surface-400 text-sm">MSME: {inv.msmeEmail?.split('@')[0]} • ₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
+                    <p className="text-surface-400 text-sm">MSME: {inv.msmeCompanyName || 'N/A'} • ₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
                   </div>
                   <StatusBadge status={inv.status} />
                 </div>

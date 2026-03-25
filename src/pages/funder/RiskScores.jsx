@@ -17,7 +17,7 @@ export default function RiskScores() {
   useEffect(() => {
     const q = query(
       collection(db, 'invoices'),
-      where('status', 'in', ['verified', 'matched', 'funded', 'settled'])
+      where('status', 'in', ['verified', 'bidding', 'funded', 'settled'])
     );
     const unsub = onSnapshot(q, (snap) => {
       setInvoices(snap.docs.map(d => ({ id: d.id, ...d.data() })));

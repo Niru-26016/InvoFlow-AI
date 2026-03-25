@@ -1,25 +1,16 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-// ─── Buyer Database (matches Firestore buyer records) ─────────────────
-const BUYER_DB = {
-  'XYZ Industries':       { creditScore: 78, paymentHistory: 'GOOD',      avgPaymentDays: 30 },
-  'Chennai Constructions': { creditScore: 65, paymentHistory: 'AVERAGE',   avgPaymentDays: 45 },
-  'FastMove Logistics':   { creditScore: 82, paymentHistory: 'EXCELLENT',  avgPaymentDays: 25 },
-};
-
 // ─── Custom Risk Scoring Algorithm ────────────────────────────────────
 // Uses: Buyer creditScore, paymentHistory, avgPaymentDays, invoice amount,
 //       due date proximity, GSTIN validation, AI confidence
-function calculateRiskScore(invoice) {
+function calculateRiskScore(invoice, buyerData) {
   let score = 0;
   const reasons = [];
-  const buyerName = invoice.buyerName || '';
-  const buyerData = BUYER_DB[buyerName] || null;
 
   // ── Factor 1: Buyer Credit Score (40% weight) ──────────────────────
   if (buyerData) {
@@ -110,7 +101,7 @@ function calculateRiskScore(invoice) {
 
 // ─── Component ────────────────────────────────────────────────────────
 export default function ConfirmInvoice() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
@@ -118,7 +109,7 @@ export default function ConfirmInvoice() {
   useEffect(() => {
     const q = query(
       collection(db, 'invoices'),
-      where('status', 'in', ['pending', 'verifying', 'verified', 'matched'])
+      where('status', 'in', ['pending', 'verifying', 'verified', 'bidding'])
     );
     const unsub = onSnapshot(q, (snap) => {
       setInvoices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -132,29 +123,83 @@ export default function ConfirmInvoice() {
     const ref = doc(db, 'invoices', invoice.id);
 
     try {
+      // Step 0: Fetch buyer profile from 'buyers' collection
+      let buyerData = null;
+      
+      // Try matching by GSTIN
+      if (userProfile?.gstin) {
+        const byGst = await getDocs(query(collection(db, 'buyers'), where('gst', '==', userProfile.gstin)));
+        if (!byGst.empty) buyerData = byGst.docs[0].data();
+      }
+      // Fallback: match by name
+      if (!buyerData && userProfile?.companyName) {
+        const byName = await getDocs(query(collection(db, 'buyers'), where('name', '==', userProfile.companyName)));
+        if (!byName.empty) buyerData = byName.docs[0].data();
+      }
+
+      // Verify Buyer details match the PDF
+      const buyerNameOnPdf = (invoice.buyerName || '').trim().toLowerCase();
+      const buyerGstinOnPdf = (invoice.buyerGSTIN || '').trim().toUpperCase();
+      const myName = (buyerData?.name || userProfile?.companyName || '').trim().toLowerCase();
+      const myGstin = (buyerData?.gst || userProfile?.gstin || '').trim().toUpperCase();
+
+      const nameMatch = myName && buyerNameOnPdf && (buyerNameOnPdf.includes(myName) || myName.includes(buyerNameOnPdf));
+      const gstinMatch = myGstin && buyerGstinOnPdf && myGstin === buyerGstinOnPdf;
+
+      const buyerVerification = {
+        nameMatch,
+        gstinMatch,
+        verified: nameMatch && gstinMatch,
+        message: (nameMatch && gstinMatch)
+          ? 'Buyer details verified. Name and GSTIN match.'
+          : [
+              !nameMatch && 'Buyer name mismatch detected.',
+              !gstinMatch && 'Buyer GSTIN mismatch detected.',
+            ].filter(Boolean).join(' ')
+      };
+
+      // If buyer verification fails, reject the invoice
+      if (!buyerVerification.verified) {
+        await updateDoc(ref, {
+          buyerConfirmed: false,
+          buyerVerification,
+          status: 'rejected',
+          rejectedAt: new Date().toISOString(),
+          rejectedBy: user.uid,
+          rejectionReason: `Buyer identity mismatch: ${buyerVerification.message}`,
+          'stageStatuses.upload': 'completed',
+          'stageStatuses.verification': 'failed'
+        });
+        setProcessingId(null);
+        return;
+      }
+
       // Step 1: Mark as verified (agentStage 1)
       await updateDoc(ref, {
         buyerConfirmed: true,
         buyerConfirmedAt: new Date().toISOString(),
         buyerConfirmedBy: user.uid,
+        buyerCompanyName: buyerData?.name || userProfile?.companyName || '',
+        buyerVerification,
         status: 'verified',
         verified: true,
-        agentStage: 1,
+        agentStage: 2,
+        'stageStatuses.upload': 'completed',
         'stageStatuses.verification': 'completed',
         'stageStatuses.risk': 'active'
       });
 
-      // Step 2: Run risk scoring algorithm
-      const riskResult = calculateRiskScore(invoice);
+      // Step 2: Run risk scoring algorithm (using real buyer data from Firestore)
+      const riskResult = calculateRiskScore(invoice, buyerData);
       
       // Small delay to show the spinning animation
       await new Promise(r => setTimeout(r, 1500));
 
       await updateDoc(ref, {
-        agentStage: 2,
+        agentStage: 3,
         riskResult,
         'stageStatuses.risk': 'completed',
-        'stageStatuses.matching': 'active'
+        'stageStatuses.bidding': 'active'
       });
 
     } catch (err) {
@@ -170,6 +215,7 @@ export default function ConfirmInvoice() {
       buyerDisputed: true,
       buyerDisputedAt: new Date().toISOString(),
       status: 'rejected',
+      'stageStatuses.upload': 'completed',
       'stageStatuses.verification': 'failed'
     });
   };
@@ -206,9 +252,12 @@ export default function ConfirmInvoice() {
                 <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0,8)}</h3>
-                    <p className="text-surface-400 text-sm">From: {inv.msmeEmail?.split('@')[0] || 'MSME'}</p>
+                    <p className="text-surface-400 text-sm">From: {inv.msmeCompanyName || inv.msmeEmail?.split('@')[0] || 'MSME'}</p>
                   </div>
-                  <StatusBadge status="awaiting" />
+                  <div className="flex items-center gap-2">
+                    {inv.authenticity && <StatusBadge status={inv.authenticity} />}
+                    <StatusBadge status="awaiting" />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                   <div className="bg-surface-800/50 p-3 rounded-xl">
@@ -233,6 +282,38 @@ export default function ConfirmInvoice() {
                 {inv.description && (
                   <p className="text-sm text-surface-400 mb-4 p-3 bg-surface-800/30 rounded-xl">{inv.description}</p>
                 )}
+
+                {/* Buyer Identity Check Preview */}
+                <div className="mb-4 p-4 rounded-xl bg-surface-800/30 border border-surface-700">
+                  <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider mb-3">🔍 Buyer Identity Check</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-surface-900/50">
+                      <div>
+                        <p className="text-xs text-surface-500">Buyer Name (PDF)</p>
+                        <p className="text-sm text-white font-medium">{inv.buyerName || 'N/A'}</p>
+                      </div>
+                      {userProfile?.companyName && inv.buyerName && (
+                        (inv.buyerName.toLowerCase().includes(userProfile.companyName.toLowerCase()) || userProfile.companyName.toLowerCase().includes(inv.buyerName.toLowerCase()))
+                          ? <span className="text-xs px-2 py-1 rounded-full bg-accent-500/15 text-accent-400">✅ Match</span>
+                          : <span className="text-xs px-2 py-1 rounded-full bg-warning-500/15 text-warning-400">⚠️ Mismatch</span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-surface-900/50">
+                      <div>
+                        <p className="text-xs text-surface-500">Buyer GSTIN (PDF)</p>
+                        <p className="text-sm text-white font-medium font-mono">{inv.buyerGSTIN || 'N/A'}</p>
+                      </div>
+                      {userProfile?.gstin && inv.buyerGSTIN && (
+                        userProfile.gstin.toUpperCase() === inv.buyerGSTIN.toUpperCase()
+                          ? <span className="text-xs px-2 py-1 rounded-full bg-accent-500/15 text-accent-400">✅ Match</span>
+                          : <span className="text-xs px-2 py-1 rounded-full bg-warning-500/15 text-warning-400">⚠️ Mismatch</span>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-xs text-surface-500 mt-2">
+                    Your profile: {userProfile?.companyName || 'Not set'} • {userProfile?.gstin || 'GSTIN not set'}
+                  </p>
+                </div>
 
                 {processingId === inv.id ? (
                   <div className="flex items-center justify-center gap-3 py-3 text-primary-400">
