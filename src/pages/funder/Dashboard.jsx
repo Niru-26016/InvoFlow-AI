@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import StatCard from '../../components/StatCard';
 import { BarChart3, DollarSign, TrendingUp, Shield, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function FunderDashboard() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [allInvoices, setAllInvoices] = useState([]);
   const [myInvestments, setMyInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,32 +54,32 @@ export default function FunderDashboard() {
     <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Funder Dashboard</h1>
-          <p className="text-surface-400 mt-1">Monitor your investment portfolio</p>
+          <h1 className="text-2xl font-bold text-white">{t('funder.dashboard_title')}</h1>
+          <p className="text-surface-400 mt-1">{t('funder.dashboard_subtitle')}</p>
         </div>
         <Link
           to="/funder/invoices"
           className="px-5 py-2.5 gradient-primary rounded-xl text-white text-sm font-semibold flex items-center gap-2 hover:opacity-90 transition-all"
         >
-          Browse Invoices <ArrowRight size={16} />
+          {t('funder.browse_invoices')} <ArrowRight size={16} />
         </Link>
       </div>
 
       {/* Stats from real data */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={DollarSign} label="Total Funded" value={`₹${totalFunded >= 100000 ? (totalFunded / 100000).toFixed(1) + 'L' : totalFunded.toLocaleString('en-IN')}`} color="primary" />
-        <StatCard icon={TrendingUp} label="My Offers" value={myOffers} color="accent" />
-        <StatCard icon={Shield} label="Avg Risk Score" value={`${avgRisk}/100`} color="warning" />
-        <StatCard icon={BarChart3} label="Accepted" value={accepted} color="accent" />
+        <StatCard icon={DollarSign} label={t('funder.total_funded')} value={`₹${totalFunded >= 100000 ? (totalFunded / 100000).toFixed(1) + 'L' : totalFunded.toLocaleString('en-IN')}`} color="primary" />
+        <StatCard icon={TrendingUp} label={t('funder.my_offers')} value={myOffers} color="accent" />
+        <StatCard icon={Shield} label={t('funder.avg_risk')} value={`${avgRisk}/100`} color="warning" />
+        <StatCard icon={BarChart3} label={t('funder.accepted')} value={accepted} color="accent" />
       </div>
 
       {/* Available Invoices Summary */}
       <div className="glass-card p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Available Opportunities</h3>
-        <p className="text-surface-400 text-sm mb-4">{totalAvailable} invoices waiting for funding offers</p>
+        <h3 className="text-lg font-semibold text-white mb-4">{t('funder.available_opps')}</h3>
+        <p className="text-surface-400 text-sm mb-4">{totalAvailable} {t('funder.invoices_waiting')}</p>
 
         {allInvoices.filter(i => ['verified', 'bidding'].includes(i.status)).length === 0 ? (
-          <p className="text-surface-500 text-sm">No invoices available yet. Check back after buyers confirm invoices.</p>
+          <p className="text-surface-500 text-sm">{t('funder.no_available')}</p>
         ) : (
           <div className="space-y-3">
             {allInvoices
@@ -89,7 +91,7 @@ export default function FunderDashboard() {
                     <p className="text-sm font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0,8)}</p>
                     <p className="text-xs text-surface-400">
                       ₹{(inv.amount || 0).toLocaleString('en-IN')} • {inv.buyerName || 'N/A'}
-                      {inv.riskResult && <span className="ml-2">• Risk: {inv.riskResult.grade} ({inv.riskResult.riskScore})</span>}
+                      {inv.riskResult && <span className="ml-2">• {t('common.risk')}: {inv.riskResult.grade} ({inv.riskResult.riskScore})</span>}
                     </p>
                   </div>
                   <span className={`text-xs px-3 py-1 rounded-full font-medium ${
@@ -97,7 +99,7 @@ export default function FunderDashboard() {
                       ? 'bg-accent-500/15 text-accent-400'
                       : 'bg-primary-500/15 text-primary-400'
                   }`}>
-                    {inv.matchedFunders?.some(f => f.funderId === user?.uid) ? 'Offered' : 'Open'}
+                    {inv.matchedFunders?.some(f => f.funderId === user?.uid) ? t('funder.offered') : t('funder.open')}
                   </span>
                 </div>
               ))}
@@ -108,7 +110,7 @@ export default function FunderDashboard() {
       {/* My Investments */}
       {myInvestments.length > 0 && (
         <div className="glass-card p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">My Investments</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">{t('funder.my_investments')}</h3>
           <div className="space-y-3">
             {myInvestments.map(inv => (
               <div key={inv.id} className="flex items-center justify-between p-3 bg-surface-800/30 rounded-xl">
@@ -116,7 +118,7 @@ export default function FunderDashboard() {
                   <p className="text-sm font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0,8)}</p>
                   <p className="text-xs text-surface-400">
                     ₹{(inv.acceptedFunder?.msmeReceives || inv.amount || 0).toLocaleString('en-IN')}
-                    {inv.acceptedFunder && <span className="ml-2">• Rate: {inv.acceptedFunder.rate}%</span>}
+                    {inv.acceptedFunder && <span className="ml-2">• {t('common.rate')}: {inv.acceptedFunder.rate}%</span>}
                   </p>
                 </div>
                 <span className={`text-xs px-3 py-1 rounded-full font-medium ${
@@ -126,7 +128,7 @@ export default function FunderDashboard() {
                   inv.status === 'bidding' ? 'bg-primary-500/15 text-primary-400' :
                   'bg-surface-700 text-surface-400'
                 }`}>
-                  {inv.status === 'settled' ? 'Settled ✓' : inv.status === 'funded' ? 'Funded ✓' : inv.status === 'accepted' ? 'Accepted' : 'Bidding'}
+                  {inv.status === 'settled' ? `${t('status.settled')} ✓` : inv.status === 'funded' ? `${t('status.funded')} ✓` : inv.status === 'accepted' ? t('status.accepted') : t('status.bidding')}
                 </span>
               </div>
             ))}

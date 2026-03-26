@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
+import { useTranslation } from 'react-i18next';
 import StatusBadge from '../../components/StatusBadge';
 import { TrendingUp, ArrowRight, CheckCircle, Clock, DollarSign, Zap } from 'lucide-react';
 
-const stageLabels = ['Upload', 'Verification', 'Risk', 'Bidding', 'MSME Accept', 'Funder Pays', 'Buyer Pays'];
-
 export default function TrackFinancing() {
+  const { t } = useTranslation();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const stageLabels = [
+    t('status.uploaded'), t('status.verified'), t('common.risk'),
+    t('status.bidding'), t('status.accepted'), t('status.funded'), t('status.settled')
+  ];
 
   useEffect(() => {
     const q = query(
@@ -30,8 +35,8 @@ export default function TrackFinancing() {
   return (
     <div className="animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Track Financing</h1>
-        <p className="text-surface-400 mt-1">Monitor the financing progress of confirmed invoices</p>
+        <h1 className="text-2xl font-bold text-white">{t('buyer.track_title')}</h1>
+        <p className="text-surface-400 mt-1">{t('buyer.track_subtitle')}</p>
       </div>
 
       {loading ? (
@@ -41,8 +46,8 @@ export default function TrackFinancing() {
       ) : invoices.length === 0 ? (
         <div className="glass-card p-16 text-center">
           <TrendingUp size={48} className="text-surface-600 mx-auto mb-4" />
-          <p className="text-surface-400 text-lg">No financing to track</p>
-          <p className="text-surface-500 text-sm mt-1">Confirmed invoices will appear here</p>
+          <p className="text-surface-400 text-lg">{t('buyer.no_financing')}</p>
+          <p className="text-surface-500 text-sm mt-1">{t('buyer.confirmed_appear')}</p>
         </div>
       ) : (
         <div className="space-y-6">

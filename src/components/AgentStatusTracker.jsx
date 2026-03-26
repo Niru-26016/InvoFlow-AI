@@ -23,36 +23,33 @@ export default function AgentStatusTracker({ currentStage = 0, stageStatuses = {
       <h3 className="text-lg font-semibold text-white mb-6">Agent Pipeline</h3>
       <div className="relative">
         {stages.map((stage, index) => {
-          const status = stageStatuses[stage.key] || 
+          const status = stageStatuses[stage.key] ||
             (index < currentStage ? 'completed' : index === currentStage ? 'active' : 'pending');
-          
+
           return (
             <div key={stage.key} className="flex items-start mb-8 last:mb-0 relative">
               {/* Connector line */}
               {index < stages.length - 1 && (
-                <div className={`absolute left-[15px] top-[36px] w-0.5 h-[calc(100%)] ${
-                  status === 'completed' ? 'bg-accent-500/40' : 'bg-surface-700'
-                }`} />
+                <div className={`absolute left-[15px] top-[36px] w-0.5 h-[calc(100%)] ${status === 'completed' ? 'bg-accent-500/40' : 'bg-surface-700'
+                  }`} />
               )}
-              
+
               {/* Icon */}
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-4 z-10 ${
-                status === 'completed' ? 'bg-accent-500/15' :
-                status === 'active' ? 'bg-primary-500/15 animate-pulse-glow' :
-                status === 'failed' ? 'bg-danger-500/15' :
-                'bg-surface-800'
-              }`}>
+              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-4 z-10 ${status === 'completed' ? 'bg-accent-500/15' :
+                  status === 'active' ? 'bg-primary-500/15 animate-pulse-glow' :
+                    status === 'failed' ? 'bg-danger-500/15' :
+                      'bg-surface-800'
+                }`}>
                 {stageIcons[status]}
               </div>
-              
+
               {/* Content */}
               <div className="flex-1">
-                <p className={`font-medium ${
-                  status === 'completed' ? 'text-accent-400' :
-                  status === 'active' ? 'text-primary-400' :
-                  status === 'failed' ? 'text-danger-400' :
-                  'text-surface-500'
-                }`}>
+                <p className={`font-medium ${status === 'completed' ? 'text-accent-400' :
+                    status === 'active' ? 'text-primary-400' :
+                      status === 'failed' ? 'text-danger-400' :
+                        'text-surface-500'
+                  }`}>
                   {stage.label}
                 </p>
                 <p className="text-sm text-surface-500 mt-0.5">{stage.description}</p>

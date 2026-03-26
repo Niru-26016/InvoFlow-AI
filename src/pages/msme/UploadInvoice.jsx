@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Upload, FileText, CheckCircle, AlertCircle, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function UploadInvoice() {
   const { user, userProfile } = useAuth();
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     buyerName: '', buyerGSTIN: '', invoiceNumber: '', amount: '', dueDate: '', description: ''
   });
@@ -157,8 +159,8 @@ export default function UploadInvoice() {
   return (
     <div className="max-w-2xl mx-auto animate-fade-in pb-20">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Upload & Verify Invoice</h1>
-        <p className="text-surface-400 mt-1">Upload your document. AI will instantly analyze, extract, and authorize the details against company records.</p>
+        <h1 className="text-2xl font-bold text-white">{t('msme.upload_title')}</h1>
+        <p className="text-surface-400 mt-1">{t('msme.upload_subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="glass-card p-8">
@@ -170,13 +172,13 @@ export default function UploadInvoice() {
 
         {/* File Upload zone */}
         <div className="mb-8">
-          <label className="block text-sm font-medium text-surface-300 mb-2">Invoice Document (PDF/JPG)</label>
+          <label className="block text-sm font-medium text-surface-300 mb-2">{t('msme.label_doc')}</label>
           <label className={`flex flex-col items-center justify-center w-full h-32 rounded-xl border-2 border-dashed transition-all cursor-pointer ${extracting ? 'border-primary-500 bg-primary-500/10' : 'border-surface-700 hover:border-primary-500/50 bg-surface-800/20'}`}>
             <input type="file" className="hidden" accept=".pdf,.jpg,.png,.jpeg" onChange={handleFileChange} disabled={extracting || submitting} />
             {extracting ? (
               <div className="flex flex-col items-center text-primary-400">
                 <div className="w-6 h-6 border-2 border-primary-400/30 border-t-primary-400 rounded-full animate-spin mb-2" />
-                <span className="text-sm font-medium">Extracting and Analyzing details...</span>
+                <span className="text-sm font-medium">{t('msme.label_extracting')}</span>
               </div>
             ) : file ? (
               <div className="flex items-center gap-3 text-accent-400">
@@ -186,8 +188,8 @@ export default function UploadInvoice() {
             ) : (
               <div className="flex flex-col items-center text-surface-500">
                 <Upload size={24} className="mb-2" />
-                <span className="text-sm">Click to upload or drag & drop</span>
-                <span className="text-xs mt-1">PDF, JPG, PNG up to 10MB</span>
+                <span className="text-sm">{t('msme.label_click_upload')}</span>
+                <span className="text-xs mt-1">{t('msme.label_upload_limits')}</span>
               </div>
             )}
           </label>
@@ -210,11 +212,11 @@ export default function UploadInvoice() {
                 <h3 className={`font-bold text-lg ${
                   analysisResult.verified ? 'text-success-400' : 'text-danger-400'
                 }`}>
-                  {analysisResult.verified ? '✅ Authentic Invoice' : '❌ Invoice Rejected'}
+                  {analysisResult.verified ? `✅ ${t('msme.auth_invoice')}` : `❌ ${t('msme.rejected_invoice')}`}
                 </h3>
                 {analysisResult.verified && (
                   <p className="text-surface-400 text-xs mt-0.5">
-                    AI Review Complete • Confidence: {Math.round(analysisResult.confidence * 100)}%
+                    {t('msme.review_complete')} • {t('msme.confidence')}: {Math.round(analysisResult.confidence * 100)}%
                   </p>
                 )}
               </div>
@@ -230,68 +232,68 @@ export default function UploadInvoice() {
               </span>
               {analysisResult.verified && (
                 <span className="px-3 py-1 bg-surface-800/50 border border-surface-700 rounded-full text-xs text-primary-300 font-mono">
-                  Score: {Math.round(analysisResult.confidence * 100)}/100
+                  {t('msme.score')}: {Math.round(analysisResult.confidence * 100)}/100
                 </span>
               )}
             </div>
             {!analysisResult.verified && (
-              <p className="text-danger-400 text-xs mt-3 ml-10">❌ This invoice has been rejected due to seller detail mismatches. You cannot submit this invoice.</p>
+              <p className="text-danger-400 text-xs mt-3 ml-10">❌ {t('msme.rejected_desc')}</p>
             )}
           </div>
         )}
 
         <div className="space-y-5 opacity-90">
-          <h3 className="text-surface-300 font-semibold mb-3 border-b border-surface-700 pb-2">AI Extracted Data Readout</h3>
+          <h3 className="text-surface-300 font-semibold mb-3 border-b border-surface-700 pb-2">{t('msme.extracted_readout')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-surface-300 mb-2">Buyer Name</label>
+              <label className="block text-sm font-medium text-surface-300 mb-2">{t('msme.buyer_name')}</label>
               <input
                 type="text" value={form.buyerName} 
                 onChange={(e) => setForm({...form, buyerName: e.target.value})}
                 className="w-full px-4 py-3 rounded-xl bg-surface-800/20 border border-surface-700/50 text-surface-300 transition-all focus:border-primary-500/50 outline-none"
-                placeholder="Auto-filled from document"
+                placeholder={t('msme.placeholder_autofill')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-300 mb-2">Buyer GSTIN</label>
+              <label className="block text-sm font-medium text-surface-300 mb-2">{t('msme.buyer_gstin')}</label>
               <input
                 type="text" value={form.buyerGSTIN} 
                 onChange={(e) => setForm({...form, buyerGSTIN: e.target.value})}
                 className="w-full px-4 py-3 rounded-xl bg-surface-800/20 border border-surface-700/50 text-surface-300 transition-all focus:border-primary-500/50 outline-none"
-                placeholder="Auto-filled from document"
+                placeholder={t('msme.placeholder_autofill')}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-surface-300 mb-2">Invoice Number</label>
+              <label className="block text-sm font-medium text-surface-300 mb-2">{t('msme.invoice_number')}</label>
               <input
                 type="text" value={form.invoiceNumber} 
                 onChange={(e) => setForm({...form, invoiceNumber: e.target.value})}
                 className="w-full px-4 py-3 rounded-xl bg-surface-800/20 border border-surface-700/50 text-surface-300 transition-all focus:border-primary-500/50 outline-none"
-                placeholder="Auto-filled from document"
+                placeholder={t('msme.placeholder_autofill')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-surface-300 mb-2">Amount (₹)</label>
+              <label className="block text-sm font-medium text-surface-300 mb-2">{t('msme.amount_inr')}</label>
               <input
                 type="text" value={form.amount} 
                 onChange={(e) => setForm({...form, amount: e.target.value})}
                 className="w-full px-4 py-3 rounded-xl bg-surface-800/20 border border-surface-700/50 text-surface-300 transition-all focus:border-primary-500/50 outline-none"
-                placeholder="Auto-filled from document"
+                placeholder={t('msme.placeholder_autofill')}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-surface-300 mb-2">Due Date</label>
+              <label className="block text-sm font-medium text-surface-300 mb-2">{t('common.due_date')}</label>
               <input
                 type="text" value={form.dueDate} 
                 onChange={(e) => setForm({...form, dueDate: e.target.value})}
                 className="w-full px-4 py-3 rounded-xl bg-surface-800/20 border border-surface-700/50 text-surface-300 transition-all focus:border-primary-500/50 outline-none"
-                placeholder="Auto-filled from document"
+                placeholder={t('msme.placeholder_autofill')}
               />
             </div>
             {analysisResult && (
@@ -308,9 +310,9 @@ export default function UploadInvoice() {
                   {submitting ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : analysisResult && !analysisResult.verified ? (
-                    <>❌ Rejected — Cannot Submit</>
+                    <>❌ {t('msme.rejected_msg')}</>
                   ) : (
-                    <>Submit to Database <CheckCircle size={18} /></>
+                    <>{t('msme.submit_db')} <CheckCircle size={18} /></>
                   )}
                 </button>
               </div>
@@ -318,12 +320,12 @@ export default function UploadInvoice() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-surface-300 mb-2">Document Description</label>
+            <label className="block text-sm font-medium text-surface-300 mb-2">{t('msme.doc_description')}</label>
             <textarea
               rows={3} value={form.description} 
               onChange={(e) => setForm({...form, description: e.target.value})}
               className="w-full px-4 py-3 rounded-xl bg-surface-800/20 border border-surface-700/50 text-surface-300 transition-all focus:border-primary-500/50 outline-none resize-none"
-              placeholder="Auto-filled from document"
+              placeholder={t('msme.placeholder_autofill')}
             />
           </div>
         </div>

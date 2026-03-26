@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
+import { useTranslation } from 'react-i18next';
 import { Shield, CheckCircle, TrendingUp, AlertTriangle } from 'lucide-react';
 
 // Real buyer database
@@ -11,6 +12,7 @@ const BUYER_DB = {
 };
 
 export default function RiskScores() {
+  const { t } = useTranslation();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -75,8 +77,8 @@ export default function RiskScores() {
   return (
     <div className="animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Buyer Risk Scores</h1>
-        <p className="text-surface-400 mt-1">AI-assessed creditworthiness of corporate buyers</p>
+        <h1 className="text-2xl font-bold text-white">{t('funder.risk_title')}</h1>
+        <p className="text-surface-400 mt-1">{t('funder.risk_subtitle')}</p>
       </div>
 
       {loading ? (
@@ -86,12 +88,12 @@ export default function RiskScores() {
       ) : buyers.length === 0 ? (
         <div className="glass-card p-16 text-center">
           <Shield size={48} className="text-surface-600 mx-auto mb-4" />
-          <p className="text-surface-400 text-lg">No buyer data available yet</p>
-          <p className="text-surface-500 text-sm mt-2">Risk scores appear after invoices are verified by buyers</p>
+          <p className="text-surface-400 text-lg">{t('funder.no_buyer_data')}</p>
+          <p className="text-surface-500 text-sm mt-2">{t('funder.risk_appear')}</p>
         </div>
       ) : (
         <div className="glass-card p-6">
-          <h3 className="text-lg font-semibold text-white mb-6">Buyer Analysis ({buyers.length} buyers)</h3>
+          <h3 className="text-lg font-semibold text-white mb-6">{t('funder.buyer_analysis')} ({buyers.length})</h3>
           <div className="space-y-3">
             {buyers.map((buyer, index) => (
               <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-surface-800/30 rounded-xl border border-surface-800 gap-4 hover:bg-surface-800/50 transition-colors">
@@ -108,18 +110,18 @@ export default function RiskScores() {
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-center">
-                    <p className="text-xs text-surface-500">Grade</p>
+                    <p className="text-xs text-surface-500">{t('msme.grade')}</p>
                     <div className="flex items-center gap-1">
                       {getGradeIcon(buyer.riskScore)}
                       <span className={`text-sm font-bold ${getScoreColor(buyer.riskScore)}`}>{buyer.grade}</span>
                     </div>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-surface-500">Avg Pay Days</p>
+                    <p className="text-xs text-surface-500">{t('funder.avg_pay_days')}</p>
                     <p className="text-sm font-bold text-white">{buyer.avgPayDays ? `${buyer.avgPayDays}d` : 'N/A'}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-surface-500">History</p>
+                    <p className="text-xs text-surface-500">{t('funder.history')}</p>
                     <p className={`text-sm font-medium ${
                       buyer.paymentHistory === 'EXCELLENT' ? 'text-accent-400' :
                       buyer.paymentHistory === 'GOOD' ? 'text-primary-400' :
@@ -128,11 +130,11 @@ export default function RiskScores() {
                     }`}>{buyer.paymentHistory}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-surface-500">Invoices</p>
+                    <p className="text-xs text-surface-500">{t('funder.invoices')}</p>
                     <p className="text-sm font-bold text-white">{buyer.invoiceCount}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-surface-500">Total</p>
+                    <p className="text-xs text-surface-500">{t('funder.total')}</p>
                     <p className="text-sm font-bold text-white">₹{(buyer.totalAmount / 1000).toFixed(0)}K</p>
                   </div>
                 </div>

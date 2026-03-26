@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import AgentStatusTracker from '../../components/AgentStatusTracker';
 import StatusBadge from '../../components/StatusBadge';
 import { FileText, Eye } from 'lucide-react';
 
 export default function VerificationStatus() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,8 +37,8 @@ export default function VerificationStatus() {
   return (
     <div className="animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Verification Status</h1>
-        <p className="text-surface-400 mt-1">Track your invoices through the AI agent pipeline</p>
+        <h1 className="text-2xl font-bold text-white">{t('msme.verification_title')}</h1>
+        <p className="text-surface-400 mt-1">{t('msme.verification_subtitle')}</p>
       </div>
 
       {loading ? (
@@ -46,13 +48,13 @@ export default function VerificationStatus() {
       ) : invoices.length === 0 ? (
         <div className="glass-card p-16 text-center">
           <FileText size={48} className="text-surface-600 mx-auto mb-4" />
-          <p className="text-surface-400 text-lg">No invoices to track</p>
+          <p className="text-surface-400 text-lg">{t('msme.no_invoices_track')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Invoice list */}
           <div className="lg:col-span-1 space-y-3">
-            <h3 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-4">Your Invoices</h3>
+            <h3 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-4">{t('msme.your_invoices')}</h3>
             {invoices.map((inv) => (
               <button
                 key={inv.id}
@@ -82,25 +84,25 @@ export default function VerificationStatus() {
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-xl font-bold text-white">{selectedInvoice.invoiceNumber}</h3>
-                      <p className="text-surface-400 mt-1">Buyer: {selectedInvoice.buyerName}</p>
+                      <p className="text-surface-400 mt-1">{t('common.buyer')}: {selectedInvoice.buyerName}</p>
                     </div>
                     <StatusBadge status={selectedInvoice.status || 'pending'} />
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
                     <div className="bg-surface-800/50 p-3 rounded-xl">
-                      <p className="text-xs text-surface-500 mb-1">Amount</p>
+                      <p className="text-xs text-surface-500 mb-1">{t('common.amount')}</p>
                       <p className="text-sm font-bold text-white">₹{(selectedInvoice.amount || 0).toLocaleString('en-IN')}</p>
                     </div>
                     <div className="bg-surface-800/50 p-3 rounded-xl">
-                      <p className="text-xs text-surface-500 mb-1">GSTIN</p>
+                      <p className="text-xs text-surface-500 mb-1">{t('common.gstin')}</p>
                       <p className="text-sm font-medium text-white">{selectedInvoice.buyerGSTIN || 'N/A'}</p>
                     </div>
                     <div className="bg-surface-800/50 p-3 rounded-xl">
-                      <p className="text-xs text-surface-500 mb-1">Due Date</p>
+                      <p className="text-xs text-surface-500 mb-1">{t('common.due_date')}</p>
                       <p className="text-sm font-medium text-white">{selectedInvoice.dueDate || 'N/A'}</p>
                     </div>
                     <div className="bg-surface-800/50 p-3 rounded-xl">
-                      <p className="text-xs text-surface-500 mb-1">Submitted</p>
+                      <p className="text-xs text-surface-500 mb-1">{t('common.submitted')}</p>
                       <p className="text-sm font-medium text-white">
                         {selectedInvoice.createdAt ? new Date(selectedInvoice.createdAt).toLocaleDateString('en-IN') : 'N/A'}
                       </p>
@@ -117,26 +119,26 @@ export default function VerificationStatus() {
                 {/* Agent outputs */}
                 {(selectedInvoice.verificationResult || selectedInvoice.riskResult) && (
                   <div className="glass-card p-6 mt-6">
-                    <h3 className="text-lg font-semibold text-white mb-4">Agent Outputs</h3>
+                    <h3 className="text-lg font-semibold text-white mb-4">{t('msme.agent_outputs')}</h3>
                     <div className="space-y-3">
                       {selectedInvoice.verificationResult && (
                         <div className="bg-surface-800/50 p-4 rounded-xl">
-                          <p className="text-xs text-accent-400 font-semibold mb-1">Invoice Verification</p>
+                          <p className="text-xs text-accent-400 font-semibold mb-1">{t('msme.invoice_verification')}</p>
                           <p className="text-sm text-surface-300">
-                            Confidence: {(selectedInvoice.verificationResult.confidence * 100).toFixed(0)}% — 
-                            {selectedInvoice.verificationResult.verified ? ' Verified ✓' : ' Rejected ✗'}
+                            {t('msme.confidence')}: {(selectedInvoice.verificationResult.confidence * 100).toFixed(0)}% — 
+                            {selectedInvoice.verificationResult.verified ? ` ${t('status.verified')} ✓` : ` ${t('status.rejected')} ✗`}
                           </p>
                           {selectedInvoice.verificationResult.message && (
                             <p className="text-xs text-surface-500 mt-1 italic">{selectedInvoice.verificationResult.message}</p>
                           )}
                           {selectedInvoice.verificationResult.extractedData && (
                             <div className="mt-3 text-xs text-blue-300 bg-blue-500/10 p-3 rounded-lg border border-blue-400/20">
-                              <p className="font-semibold text-surface-300 mb-1">Extracted Details:</p>
+                              <p className="font-semibold text-surface-300 mb-1">{t('msme.extracted_readout')}:</p>
                               <ul className="list-disc pl-4 space-y-1">
-                                <li>Name: {selectedInvoice.verificationResult.extractedData.buyerName || 'N/A'}</li>
-                                <li>GSTIN: {selectedInvoice.verificationResult.extractedData.buyerGSTIN || 'N/A'}</li>
-                                <li>Invoice #: {selectedInvoice.verificationResult.extractedData.invoiceNumber || 'N/A'}</li>
-                                <li>Amount: ₹{selectedInvoice.verificationResult.extractedData.amount || 'N/A'}</li>
+                                <li>{t('msme.buyer_name')}: {selectedInvoice.verificationResult.extractedData.buyerName || 'N/A'}</li>
+                                <li>{t('common.gstin')}: {selectedInvoice.verificationResult.extractedData.buyerGSTIN || 'N/A'}</li>
+                                <li>{t('common.invoice_number')}: {selectedInvoice.verificationResult.extractedData.invoiceNumber || 'N/A'}</li>
+                                <li>{t('common.amount')}: ₹{selectedInvoice.verificationResult.extractedData.amount || 'N/A'}</li>
                               </ul>
                             </div>
                           )}
@@ -144,9 +146,9 @@ export default function VerificationStatus() {
                       )}
                       {selectedInvoice.riskResult && (
                         <div className="bg-surface-800/50 p-4 rounded-xl">
-                          <p className="text-xs text-primary-400 font-semibold mb-1">Buyer Risk Score</p>
+                          <p className="text-xs text-primary-400 font-semibold mb-1">{t('msme.buyer_risk_score')}</p>
                           <p className="text-sm text-surface-300">
-                            Score: {selectedInvoice.riskResult.riskScore}/100 — Grade: {selectedInvoice.riskResult.grade}
+                            {t('msme.score')}: {selectedInvoice.riskResult.riskScore}/100 — {t('msme.grade')}: {selectedInvoice.riskResult.grade}
                           </p>
                         </div>
                       )}

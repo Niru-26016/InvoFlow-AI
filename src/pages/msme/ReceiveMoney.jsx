@@ -3,8 +3,8 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
-import StatusBadge from '../../components/StatusBadge';
 import StatCard from '../../components/StatCard';
+import StatusBadge from '../../components/StatusBadge';
 import { Wallet, CheckCircle, Clock, DollarSign, ArrowDownCircle, ShieldCheck, Banknote, Loader2 } from 'lucide-react';
 import { logToLedger } from '../../services/blockchainService';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -65,28 +65,28 @@ export default function ReceiveMoney() {
   return (
     <div className="animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Receive Money</h1>
-        <p className="text-surface-400 mt-1">Track disbursements and settlement status</p>
+        <h1 className="text-2xl font-bold text-white">{t('msme.receive_title')}</h1>
+        <p className="text-surface-400 mt-1">{t('msme.receive_subtitle')}</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <StatCard icon={Wallet} label="Total Received" value={`₹${totalReceived >= 100000 ? (totalReceived / 100000).toFixed(1) + 'L' : totalReceived.toLocaleString('en-IN')}`} color="accent" />
-        <StatCard icon={ShieldCheck} label="In Escrow" value={`₹${totalEscrow >= 100000 ? (totalEscrow / 100000).toFixed(1) + 'L' : totalEscrow.toLocaleString('en-IN')}`} color="primary" />
-        <StatCard icon={Clock} label="Pending Disbursement" value={`₹${totalPending >= 100000 ? (totalPending / 100000).toFixed(1) + 'L' : totalPending.toLocaleString('en-IN')}`} color="warning" />
+        <StatCard icon={Wallet} label={t('msme.total_received')} value={`₹${totalReceived >= 100000 ? (totalReceived / 100000).toFixed(1) + 'L' : totalReceived.toLocaleString('en-IN')}`} color="accent" />
+        <StatCard icon={ShieldCheck} label={t('msme.in_escrow')} value={`₹${totalEscrow >= 100000 ? (totalEscrow / 100000).toFixed(1) + 'L' : totalEscrow.toLocaleString('en-IN')}`} color="primary" />
+        <StatCard icon={Clock} label={t('msme.pending_disbursement')} value={`₹${totalPending >= 100000 ? (totalPending / 100000).toFixed(1) + 'L' : totalPending.toLocaleString('en-IN')}`} color="warning" />
       </div>
 
       {/* Escrow Wallet */}
       {inEscrow.length > 0 && (
         <div className="mb-8 p-6 rounded-xl border" style={{ background: 'var(--th-bg-secondary)', borderColor: 'var(--th-border)' }}>
           <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-lg font-semibold" style={{ color: 'var(--th-text)' }}>Escrow Wallet</h2>
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--th-text)' }}>{t('msme.escrow_wallet')}</h2>
             <span className="text-xs px-2 py-1 rounded-full bg-primary-500/15 text-primary-600 dark:text-primary-400 font-medium">
-              Ready to Withdraw ({inEscrow.length})
+              {t('msme.ready_to_withdraw')} ({inEscrow.length})
             </span>
           </div>
           <p className="text-sm mb-6" style={{ color: 'var(--th-text-muted)' }}>
-            These funds have been deposited by funders and are securely held in escrow. Withdraw them to your linked bank account.
+            {t('msme.escrow_wallet_desc')}
           </p>
 
           <div className="space-y-3">
@@ -98,13 +98,13 @@ export default function ReceiveMoney() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber}</p>
-                    <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>From Funder: {inv.acceptedFunder?.name || 'Funder'}</p>
+                    <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>{t('msme.from_funder')}: {inv.acceptedFunder?.name || 'Funder'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <p className="text-lg font-bold" style={{ color: 'var(--th-text)' }}>₹{(inv.acceptedFunder?.msmeReceives || inv.amount || 0).toLocaleString('en-IN')}</p>
-                    <p className="text-xs" style={{ color: 'var(--th-text-faint)' }}>Available to withdraw</p>
+                    <p className="text-xs" style={{ color: 'var(--th-text-faint)' }}>{t('msme.available_withdraw')}</p>
                   </div>
                   <button
                     onClick={() => handleWithdraw(inv)}
@@ -114,7 +114,7 @@ export default function ReceiveMoney() {
                     {withdrawingId === inv.id ? (
                       <Loader2 size={16} className="animate-spin text-white" />
                     ) : (
-                      <><Banknote size={16} /> Withdraw to Bank</>
+                      <><Banknote size={16} /> {t('msme.withdraw_bank')}</>
                     )}
                   </button>
                 </div>
@@ -126,7 +126,7 @@ export default function ReceiveMoney() {
 
       {/* Transactions */}
       <div className="glass-card p-6">
-        <h2 className="text-lg font-semibold mb-6" style={{ color: 'var(--th-text)' }}>Settlement History</h2>
+        <h2 className="text-lg font-semibold mb-6" style={{ color: 'var(--th-text)' }}>{t('msme.settlement_history')}</h2>
         
         {loading ? (
           <div className="flex justify-center py-12">
@@ -135,8 +135,8 @@ export default function ReceiveMoney() {
         ) : [...received, ...pending].length === 0 ? (
           <div className="text-center py-12">
             <ArrowDownCircle size={48} className="text-surface-600 mx-auto mb-4" />
-            <p className="text-surface-400">No settlements yet</p>
-            <p className="text-surface-500 text-sm mt-1">Funds will appear here once invoices are withdrawn from escrow</p>
+            <p className="text-surface-400">{t('msme.no_settlements')}</p>
+            <p className="text-surface-500 text-sm mt-1">{t('msme.funds_appear')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -161,10 +161,10 @@ export default function ReceiveMoney() {
                   <div className="text-right">
                     <p className="text-sm font-bold" style={{ color: 'var(--th-text)' }}>₹{(inv.acceptedFunder?.msmeReceives || inv.amount || 0).toLocaleString('en-IN')}</p>
                     <p className="text-xs text-surface-500">
-                      Invoice: ₹{(inv.amount || 0).toLocaleString('en-IN')} • Discount: {inv.acceptedFunder?.rate || 0}%
+                      {t('common.invoice')}: ₹{(inv.amount || 0).toLocaleString('en-IN')} • {t('funder.discount')}: {inv.acceptedFunder?.rate || 0}%
                     </p>
                     <p className="text-xs text-surface-500">
-                      {inv.fundedAt ? new Date(inv.fundedAt).toLocaleDateString('en-IN') : 'Pending'}
+                      {inv.fundedAt ? new Date(inv.fundedAt).toLocaleDateString('en-IN') : t('status.pending')}
                     </p>
                   </div>
                   <StatusBadge status={inv.status} />
