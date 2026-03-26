@@ -40,7 +40,7 @@ export default function FunderDashboard() {
   const accepted = myInvestments.filter(i => i.acceptedFunder?.funderId === user?.uid).length;
   const totalFunded = myInvestments
     .filter(i => i.acceptedFunder?.funderId === user?.uid)
-    .reduce((sum, i) => sum + (i.amount || 0), 0);
+    .reduce((sum, i) => sum + (i.acceptedFunder?.msmeReceives || i.amount || 0), 0);
 
   // Calculate average risk score from available invoices
   const invoicesWithRisk = allInvoices.filter(i => i.riskResult?.riskScore);

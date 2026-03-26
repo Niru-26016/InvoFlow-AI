@@ -284,10 +284,10 @@ export default function ConfirmInvoice() {
                 )}
 
                 {/* Buyer Identity Check Preview */}
-                <div className="mb-4 p-4 rounded-xl bg-surface-800/30 border border-surface-700">
+                <div className="mb-4 p-4 rounded-xl border" style={{ background: 'var(--th-bg-input)', borderColor: 'var(--th-border-input)' }}>
                   <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider mb-3">🔍 Buyer Identity Check</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-surface-900/50">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/60 dark:bg-surface-900/50">
                       <div>
                         <p className="text-xs text-surface-500">Buyer Name (PDF)</p>
                         <p className="text-sm text-white font-medium">{inv.buyerName || 'N/A'}</p>
@@ -298,7 +298,7 @@ export default function ConfirmInvoice() {
                           : <span className="text-xs px-2 py-1 rounded-full bg-warning-500/15 text-warning-400">⚠️ Mismatch</span>
                       )}
                     </div>
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-surface-900/50">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/60 dark:bg-surface-900/50">
                       <div>
                         <p className="text-xs text-surface-500">Buyer GSTIN (PDF)</p>
                         <p className="text-sm text-white font-medium font-mono">{inv.buyerGSTIN || 'N/A'}</p>
