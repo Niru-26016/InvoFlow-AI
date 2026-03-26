@@ -4,6 +4,7 @@ import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { logToLedger } from '../../services/blockchainService';
 
 // ─── Custom Risk Scoring Algorithm ────────────────────────────────────
 // Uses: Buyer creditScore, paymentHistory, avgPaymentDays, invoice amount,
@@ -171,6 +172,16 @@ export default function ConfirmInvoice() {
           'stageStatuses.verification': 'failed'
         });
         setProcessingId(null);
+
+        // Log rejection to blockchain
+        await logToLedger(invoice.id, 'invoice_rejected', {
+          fromUser: user.uid,
+          fromName: userProfile?.companyName || user.email,
+          invoiceNumber: invoice.invoiceNumber,
+          amount: invoice.amount,
+          metadata: { reason: buyerVerification.message }
+        });
+
         return;
       }
 
@@ -200,6 +211,17 @@ export default function ConfirmInvoice() {
         riskResult,
         'stageStatuses.risk': 'completed',
         'stageStatuses.bidding': 'active'
+      });
+
+      // Log verification to blockchain
+      await logToLedger(invoice.id, 'invoice_verified', {
+        fromUser: user.uid,
+        fromName: userProfile?.companyName || user.email,
+        toUser: invoice.msmeId,
+        toName: invoice.msmeCompanyName || 'MSME',
+        invoiceNumber: invoice.invoiceNumber,
+        amount: invoice.amount,
+        metadata: { riskScore: riskResult.riskScore, riskGrade: riskResult.grade }
       });
 
     } catch (err) {

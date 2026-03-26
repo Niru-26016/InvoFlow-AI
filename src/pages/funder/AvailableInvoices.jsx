@@ -4,6 +4,7 @@ import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import { FileText, DollarSign, Calendar, Shield, Percent, CheckCircle, Banknote, Loader2 } from 'lucide-react';
+import { logToLedger } from '../../services/blockchainService';
 
 // Risk appetite determines which invoices a funder can see
 // HIGH risk taker → sees ALL invoices (including risky ones)
@@ -63,6 +64,17 @@ export default function AvailableInvoices() {
         'stageStatuses.funding': 'completed',
         'stageStatuses.settlement': 'active'
       });
+
+      // Log to blockchain
+      await logToLedger(invoice.id, 'payment_disbursed', {
+        fromUser: user.uid,
+        fromName: user.displayName || user.email?.split('@')[0] || 'Funder',
+        toUser: invoice.msmeId,
+        toName: invoice.msmeCompanyName || 'MSME',
+        invoiceNumber: invoice.invoiceNumber,
+        amount: invoice.acceptedFunder?.msmeReceives || invoice.amount,
+        metadata: { rate: invoice.acceptedFunder?.rate }
+      });
     } catch (err) {
       alert('Disbursement failed: ' + err.message);
     } finally {
@@ -98,6 +110,15 @@ export default function AvailableInvoices() {
         })
       });
       setBidRates(prev => ({ ...prev, [invoice.id]: '' }));
+
+      // Log to blockchain
+      await logToLedger(invoice.id, 'bid_placed', {
+        fromUser: user.uid,
+        fromName: user.displayName || user.email?.split('@')[0] || 'Funder',
+        invoiceNumber: invoice.invoiceNumber,
+        amount: msmeReceives,
+        metadata: { rate, discountAmount, originalAmount: invoice.amount }
+      });
     } catch (err) {
       console.error('Bid error:', err);
       alert('Failed to submit bid: ' + err.message);

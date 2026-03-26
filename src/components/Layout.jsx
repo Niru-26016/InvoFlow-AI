@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { 
   LayoutDashboard, Upload, CheckCircle, DollarSign, Wallet,
   FileText, Shield, BarChart3, Building, CreditCard, TrendingUp,
-  LogOut, Menu, X, Zap, ChevronRight, Sun, Moon
+  LogOut, Menu, X, Zap, ChevronRight, Sun, Moon, Link2
 } from 'lucide-react';
 
 const navigationConfig = {
@@ -16,6 +16,7 @@ const navigationConfig = {
       { path: '/msme/verification', label: 'Verification Status', icon: CheckCircle },
       { path: '/msme/offers', label: 'Funding Offers', icon: DollarSign },
       { path: '/msme/receive', label: 'Receive Money', icon: Wallet },
+      { path: '/msme/ledger', label: 'Blockchain Ledger', icon: Link2 },
     ]
   },
   funder: {
@@ -25,6 +26,7 @@ const navigationConfig = {
       { path: '/funder/invoices', label: 'Available Invoices', icon: FileText },
       { path: '/funder/risk', label: 'Risk Scores', icon: Shield },
       { path: '/funder/portfolio', label: 'Portfolio', icon: BarChart3 },
+      { path: '/funder/ledger', label: 'Blockchain Ledger', icon: Link2 },
     ]
   },
   buyer: {
@@ -33,7 +35,8 @@ const navigationConfig = {
       { path: '/buyer', label: 'Dashboard', icon: LayoutDashboard, end: true },
       { path: '/buyer/confirm', label: 'Confirm Invoice', icon: Building },
       { path: '/buyer/financing', label: 'Track Financing', icon: TrendingUp },
-      { path: '/buyer/payment', label: 'Pay Funder', icon: CreditCard },
+      { path: '/buyer/payment', label: 'Make Payment', icon: CreditCard },
+      { path: '/buyer/ledger', label: 'Blockchain Ledger', icon: Link2 },
     ]
   }
 };

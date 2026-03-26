@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import StatCard from '../../components/StatCard';
 import { CreditCard, CheckCircle, Clock, DollarSign, Banknote, Building, User } from 'lucide-react';
+import { logToLedger } from '../../services/blockchainService';
 
 export default function MakePayment() {
   const { user } = useAuth();
@@ -40,6 +41,16 @@ export default function MakePayment() {
         agentStage: 7,
         'stageStatuses.settlement': 'completed'
       });
+
+      // Log to blockchain
+      await logToLedger(invoice.id, 'settlement_msme', {
+        fromUser: user.uid,
+        fromName: 'Buyer',
+        toUser: invoice.msmeId,
+        toName: invoice.msmeCompanyName || 'MSME',
+        invoiceNumber: invoice.invoiceNumber,
+        amount: invoice.amount
+      });
     } catch (err) {
       console.error('Payment failed:', err);
     }
@@ -60,6 +71,16 @@ export default function MakePayment() {
         buyerPaidAmount: invoice.amount,
         agentStage: 7,
         'stageStatuses.settlement': 'completed'
+      });
+
+      // Log to blockchain
+      await logToLedger(invoice.id, 'settlement_funder', {
+        fromUser: user.uid,
+        fromName: 'Buyer',
+        toUser: invoice.acceptedFunder?.funderId,
+        toName: invoice.acceptedFunder?.name || 'Funder',
+        invoiceNumber: invoice.invoiceNumber,
+        amount: invoice.amount
       });
     } catch (err) {
       console.error('Payment failed:', err);
