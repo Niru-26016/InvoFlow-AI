@@ -43,7 +43,7 @@ export default function AvailableInvoices() {
     if (!user) return;
     const q2 = query(
       collection(db, 'invoices'),
-      where('status', 'in', ['accepted', 'funded'])
+      where('status', 'in', ['accepted', 'funded', 'escrow_funded'])
     );
     const unsub = onSnapshot(q2, (snap) => {
       const myAccepted = snap.docs
@@ -58,15 +58,15 @@ export default function AvailableInvoices() {
     setDisbursingId(invoice.id);
     try {
       await updateDoc(doc(db, 'invoices', invoice.id), {
-        status: 'funded',
+        status: 'escrow_funded',
         fundedAt: new Date().toISOString(),
         agentStage: 6,
-        'stageStatuses.funding': 'completed',
-        'stageStatuses.settlement': 'active'
+        'stageStatuses.funding': 'active', // funding not fully complete until MSME withdraws
+        'stageStatuses.settlement': 'pending'
       });
 
       // Log to blockchain
-      await logToLedger(invoice.id, 'payment_disbursed', {
+      await logToLedger(invoice.id, 'escrow_deposit', {
         fromUser: user.uid,
         fromName: user.displayName || user.email?.split('@')[0] || 'Funder',
         toUser: invoice.msmeId,
@@ -201,7 +201,7 @@ export default function AvailableInvoices() {
                       {disbursingId === inv.id ? (
                         <Loader2 size={16} className="animate-spin" />
                       ) : (
-                        <><Banknote size={16} /> Disburse Payment</>
+                        <><Banknote size={16} /> Disburse to Escrow</>
                       )}
                     </button>
                   </div>
@@ -213,20 +213,20 @@ export default function AvailableInvoices() {
       )}
 
       {/* Funded History */}
-      {acceptedInvoices.filter(i => i.status === 'funded').length > 0 && (
+      {acceptedInvoices.filter(i => ['funded', 'escrow_funded'].includes(i.status)).length > 0 && (
         <div className="mb-8">
           <h2 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-4">
-            Recently Funded ({acceptedInvoices.filter(i => i.status === 'funded').length})
+            Recent Disbursements ({acceptedInvoices.filter(i => ['funded', 'escrow_funded'].includes(i.status)).length})
           </h2>
           <div className="space-y-3">
-            {acceptedInvoices.filter(i => i.status === 'funded').map((inv) => (
+            {acceptedInvoices.filter(i => ['funded', 'escrow_funded'].includes(i.status)).map((inv) => (
               <div key={inv.id} className="glass-card p-4 opacity-75">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0, 8)}</p>
                     <p className="text-xs text-surface-400">Paid ₹{(inv.acceptedFunder?.msmeReceives || 0).toLocaleString('en-IN')} to {inv.msmeCompanyName || 'MSME'}</p>
                   </div>
-                  <StatusBadge status="funded" />
+                  <StatusBadge status={inv.status} />
                 </div>
               </div>
             ))}

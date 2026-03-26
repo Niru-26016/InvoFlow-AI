@@ -3,18 +3,44 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import StatCard from '../../components/StatCard';
-import { TrendingUp, DollarSign, BarChart3, Shield, FileText } from 'lucide-react';
+import { TrendingUp, DollarSign, BarChart3, Shield, FileText, Banknote, Loader2, ShieldCheck } from 'lucide-react';
+import { logToLedger } from '../../services/blockchainService';
+import { doc, updateDoc } from 'firebase/firestore';
 
 export default function PortfolioPerformance() {
   const { user } = useAuth();
   const [investments, setInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [withdrawingId, setWithdrawingId] = useState(null);
+
+  const handleWithdraw = async (invoice) => {
+    setWithdrawingId(invoice.id);
+    try {
+      await updateDoc(doc(db, 'invoices', invoice.id), {
+        status: 'settled',
+        'stageStatuses.settlement': 'completed'
+      });
+
+      // Log to blockchain
+      await logToLedger(invoice.id, 'escrow_withdrawal_funder', {
+        fromUser: 'Platform Escrow',
+        fromName: 'Escrow',
+        toUser: user.uid,
+        toName: user.email?.split('@')[0] || 'Funder',
+        invoiceNumber: invoice.invoiceNumber,
+        amount: invoice.amount
+      });
+    } catch (err) {
+      console.error('Withdraw failed:', err);
+    }
+    setWithdrawingId(null);
+  };
 
   useEffect(() => {
     if (!user) return;
     const q = query(
       collection(db, 'invoices'),
-      where('status', 'in', ['bidding', 'funded', 'settled'])
+      where('status', 'in', ['bidding', 'accepted', 'funded', 'escrow_funded', 'escrow_settled', 'settled'])
     );
     const unsub = onSnapshot(q, (snap) => {
       const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -29,8 +55,13 @@ export default function PortfolioPerformance() {
     return unsub;
   }, [user]);
 
-  const funded = investments.filter(i => i.acceptedFunder?.funderId === user?.uid);
-  const totalFunded = funded.reduce((sum, i) => sum + (i.acceptedFunder?.msmeReceives || i.amount || 0), 0);
+  const funded = investments.filter(i => i.acceptedFunder?.funderId === user?.uid && ['funded', 'escrow_funded', 'escrow_settled', 'settled'].includes(i.status));
+  const escrowReturns = investments.filter(i => i.acceptedFunder?.funderId === user?.uid && i.status === 'escrow_settled');
+  const totalProfit = funded.reduce((sum, i) => {
+    const invoiceAmt = i.amount || 0;
+    const paid = i.acceptedFunder?.msmeReceives || invoiceAmt;
+    return sum + (invoiceAmt - paid);
+  }, 0);
   const avgRate = funded.length > 0
     ? (funded.reduce((sum, i) => sum + (i.acceptedFunder?.rate || 0), 0) / funded.length).toFixed(1)
     : '0';
@@ -46,7 +77,7 @@ export default function PortfolioPerformance() {
 
       {/* Stats from real Firestore data */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={DollarSign} label="Total Funded" value={`₹${totalFunded >= 100000 ? (totalFunded / 100000).toFixed(1) + 'L' : totalFunded.toLocaleString('en-IN')}`} color="primary" />
+        <StatCard icon={DollarSign} label="Total Profit" value={`₹${totalProfit >= 100000 ? (totalProfit / 100000).toFixed(1) + 'L' : totalProfit.toLocaleString('en-IN')}`} color="accent" />
         <StatCard icon={TrendingUp} label="Avg Rate" value={`${avgRate}%`} color="accent" />
         <StatCard icon={BarChart3} label="Total Offers" value={totalOffers} color="warning" />
         <StatCard icon={Shield} label="Accept Rate" value={`${acceptRate}%`} color="accent" />
@@ -64,6 +95,52 @@ export default function PortfolioPerformance() {
         </div>
       ) : (
         <>
+          {/* Escrow Returns */}
+          {escrowReturns.length > 0 && (
+            <div className="mb-8 p-6 rounded-xl border border-primary-500/30 bg-primary-500/5">
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-lg font-semibold text-white">Escrow Returns</h2>
+                <span className="text-xs px-2 py-1 rounded-full bg-primary-500/20 text-primary-400 font-medium">
+                  Ready to Withdraw ({escrowReturns.length})
+                </span>
+              </div>
+              <p className="text-sm text-surface-400 mb-6">Buyers have paid these invoices into the platform escrow. Withdraw your principal + profit to your bank account.</p>
+
+              <div className="space-y-3">
+                {escrowReturns.map((inv) => (
+                  <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-surface-900/50 rounded-xl border border-surface-700 gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary-500/15 flex items-center justify-center">
+                        <ShieldCheck size={22} className="text-primary-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">{inv.invoiceNumber}</p>
+                        <p className="text-xs text-surface-400">Buyer: {inv.buyerName || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-white">₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
+                        <p className="text-xs text-surface-500">Includes your profit limit</p>
+                      </div>
+                      <button
+                        onClick={() => handleWithdraw(inv)}
+                        disabled={withdrawingId === inv.id}
+                        className="px-5 py-2.5 gradient-primary rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {withdrawingId === inv.id ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <><Banknote size={16} /> Withdraw Settlement</>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Funded Invoices */}
           {funded.length > 0 && (
             <div className="glass-card p-6">
@@ -88,9 +165,18 @@ export default function PortfolioPerformance() {
                         <p className="text-xs text-surface-500">Risk</p>
                         <p className="text-sm font-bold text-warning-400">{inv.riskResult?.grade || 'N/A'}</p>
                       </div>
-                      <span className="text-xs px-3 py-1 rounded-full font-medium bg-accent-500/15 text-accent-400">
-                        Funded ✓
-                      </span>
+                      <div className="text-center ml-4">
+                        <p className="text-xs text-surface-500">Status</p>
+                        <p className={`text-sm font-bold ${
+                          inv.status === 'settled' ? 'text-accent-400' :
+                          inv.status === 'escrow_settled' ? 'text-primary-400' :
+                          'text-warning-400'
+                        }`}>
+                          {inv.status === 'settled' ? 'Settled ✓' :
+                           inv.status === 'escrow_settled' ? 'In Escrow' :
+                           'Funded'}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}

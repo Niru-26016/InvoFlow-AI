@@ -14,10 +14,10 @@ export default function MakePayment() {
   const [paying, setPaying] = useState(null);
 
   useEffect(() => {
-    // Include verified & accepted (pay MSME) + funded (pay Funder) + settled (completed)
+    // Include verified & accepted (pay MSME) + funded & escrow_funded (pay Funder) + settled & escrow_settled (completed)
     const q = query(
       collection(db, 'invoices'),
-      where('status', 'in', ['verified', 'accepted', 'funded', 'settled'])
+      where('status', 'in', ['verified', 'accepted', 'funded', 'escrow_funded', 'settled', 'escrow_settled'])
     );
     const unsub = onSnapshot(q, (snap) => {
       setInvoices(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -31,7 +31,7 @@ export default function MakePayment() {
     setPaying(invoice.id);
     try {
       await updateDoc(doc(db, 'invoices', invoice.id), {
-        status: 'settled',
+        status: 'escrow_settled',
         settledAt: new Date().toISOString(),
         buyerPaidAt: new Date().toISOString(),
         paidBy: user.uid,
@@ -39,15 +39,15 @@ export default function MakePayment() {
         buyerPaidToName: invoice.msmeCompanyName || 'MSME',
         buyerPaidAmount: invoice.amount,
         agentStage: 7,
-        'stageStatuses.settlement': 'completed'
+        'stageStatuses.settlement': 'active' // settlement not fully complete until MSME withdraws
       });
 
       // Log to blockchain
-      await logToLedger(invoice.id, 'settlement_msme', {
+      await logToLedger(invoice.id, 'escrow_repayment', {
         fromUser: user.uid,
         fromName: 'Buyer',
-        toUser: invoice.msmeId,
-        toName: invoice.msmeCompanyName || 'MSME',
+        toUser: 'Platform Escrow',
+        toName: 'Escrow',
         invoiceNumber: invoice.invoiceNumber,
         amount: invoice.amount
       });
@@ -62,7 +62,7 @@ export default function MakePayment() {
     setPaying(invoice.id);
     try {
       await updateDoc(doc(db, 'invoices', invoice.id), {
-        status: 'settled',
+        status: 'escrow_settled',
         settledAt: new Date().toISOString(),
         buyerPaidAt: new Date().toISOString(),
         paidBy: user.uid,
@@ -70,15 +70,15 @@ export default function MakePayment() {
         buyerPaidToName: invoice.acceptedFunder?.name || 'Funder',
         buyerPaidAmount: invoice.amount,
         agentStage: 7,
-        'stageStatuses.settlement': 'completed'
+        'stageStatuses.settlement': 'active' // settlement not fully complete until Funder withdraws
       });
 
       // Log to blockchain
-      await logToLedger(invoice.id, 'settlement_funder', {
+      await logToLedger(invoice.id, 'escrow_repayment', {
         fromUser: user.uid,
         fromName: 'Buyer',
-        toUser: invoice.acceptedFunder?.funderId,
-        toName: invoice.acceptedFunder?.name || 'Funder',
+        toUser: 'Platform Escrow',
+        toName: 'Escrow',
         invoiceNumber: invoice.invoiceNumber,
         amount: invoice.amount
       });
@@ -90,8 +90,8 @@ export default function MakePayment() {
 
   // Categorize invoices
   const payToMSME = invoices.filter(i => ['verified', 'accepted'].includes(i.status) && !i.acceptedFunder);
-  const payToFunder = invoices.filter(i => i.status === 'funded');
-  const completed = invoices.filter(i => i.status === 'settled');
+  const payToFunder = invoices.filter(i => ['funded', 'escrow_funded'].includes(i.status));
+  const completed = invoices.filter(i => ['settled', 'escrow_settled'].includes(i.status));
 
   const totalDueToMSME = payToMSME.reduce((sum, i) => sum + (i.amount || 0), 0);
   const totalDueToFunder = payToFunder.reduce((sum, i) => sum + (i.amount || 0), 0);
@@ -157,7 +157,7 @@ export default function MakePayment() {
                       {paying === inv.id ? (
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       ) : (
-                        <><CreditCard size={16} /> Pay MSME</>
+                        <><CreditCard size={16} /> Pay via Escrow</>
                       )}
                     </button>
                   </div>
@@ -205,7 +205,7 @@ export default function MakePayment() {
                       {paying === inv.id ? (
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       ) : (
-                        <><CreditCard size={16} /> Pay Funder</>
+                        <><CreditCard size={16} /> Pay via Escrow</>
                       )}
                     </button>
                   </div>
@@ -244,7 +244,7 @@ export default function MakePayment() {
                     </p>
                   </div>
                 </div>
-                <StatusBadge status="settled" />
+                <StatusBadge status={inv.status} />
               </div>
             ))}
           </div>

@@ -307,12 +307,12 @@ export default function ConfirmInvoice() {
 
                 {/* Buyer Identity Check Preview */}
                 <div className="mb-4 p-4 rounded-xl border" style={{ background: 'var(--th-bg-input)', borderColor: 'var(--th-border-input)' }}>
-                  <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider mb-3">🔍 Buyer Identity Check</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--th-text-muted)' }}>🔍 Buyer Identity Check</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/60 dark:bg-surface-900/50">
+                    <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'var(--th-bg-secondary)', border: '1px solid var(--th-border)' }}>
                       <div>
-                        <p className="text-xs text-surface-500">Buyer Name (PDF)</p>
-                        <p className="text-sm text-white font-medium">{inv.buyerName || 'N/A'}</p>
+                        <p className="text-xs" style={{ color: 'var(--th-text-faint)' }}>Buyer Name (PDF)</p>
+                        <p className="text-sm font-medium" style={{ color: 'var(--th-text)' }}>{inv.buyerName || 'N/A'}</p>
                       </div>
                       {userProfile?.companyName && inv.buyerName && (
                         (inv.buyerName.toLowerCase().includes(userProfile.companyName.toLowerCase()) || userProfile.companyName.toLowerCase().includes(inv.buyerName.toLowerCase()))
@@ -320,10 +320,10 @@ export default function ConfirmInvoice() {
                           : <span className="text-xs px-2 py-1 rounded-full bg-warning-500/15 text-warning-400">⚠️ Mismatch</span>
                       )}
                     </div>
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/60 dark:bg-surface-900/50">
+                    <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'var(--th-bg-secondary)', border: '1px solid var(--th-border)' }}>
                       <div>
-                        <p className="text-xs text-surface-500">Buyer GSTIN (PDF)</p>
-                        <p className="text-sm text-white font-medium font-mono">{inv.buyerGSTIN || 'N/A'}</p>
+                        <p className="text-xs" style={{ color: 'var(--th-text-faint)' }}>Buyer GSTIN (PDF)</p>
+                        <p className="text-sm font-medium font-mono" style={{ color: 'var(--th-text)' }}>{inv.buyerGSTIN || 'N/A'}</p>
                       </div>
                       {userProfile?.gstin && inv.buyerGSTIN && (
                         userProfile.gstin.toUpperCase() === inv.buyerGSTIN.toUpperCase()
@@ -332,7 +332,7 @@ export default function ConfirmInvoice() {
                       )}
                     </div>
                   </div>
-                  <p className="text-xs text-surface-500 mt-2">
+                  <p className="text-xs mt-2" style={{ color: 'var(--th-text-faint)' }}>
                     Your profile: {userProfile?.companyName || 'Not set'} • {userProfile?.gstin || 'GSTIN not set'}
                   </p>
                 </div>
