@@ -30,7 +30,11 @@ export default function PortfolioPerformance() {
   }, [user]);
 
   const funded = investments.filter(i => i.acceptedFunder?.funderId === user?.uid);
-  const totalFunded = funded.reduce((sum, i) => sum + (i.acceptedFunder?.msmeReceives || i.amount || 0), 0);
+  const totalProfit = funded.reduce((sum, i) => {
+    const invoiceAmt = i.amount || 0;
+    const paid = i.acceptedFunder?.msmeReceives || invoiceAmt;
+    return sum + (invoiceAmt - paid);
+  }, 0);
   const avgRate = funded.length > 0
     ? (funded.reduce((sum, i) => sum + (i.acceptedFunder?.rate || 0), 0) / funded.length).toFixed(1)
     : '0';
@@ -46,7 +50,7 @@ export default function PortfolioPerformance() {
 
       {/* Stats from real Firestore data */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={DollarSign} label="Total Funded" value={`₹${totalFunded >= 100000 ? (totalFunded / 100000).toFixed(1) + 'L' : totalFunded.toLocaleString('en-IN')}`} color="primary" />
+        <StatCard icon={DollarSign} label="Total Profit" value={`₹${totalProfit >= 100000 ? (totalProfit / 100000).toFixed(1) + 'L' : totalProfit.toLocaleString('en-IN')}`} color="accent" />
         <StatCard icon={TrendingUp} label="Avg Rate" value={`${avgRate}%`} color="accent" />
         <StatCard icon={BarChart3} label="Total Offers" value={totalOffers} color="warning" />
         <StatCard icon={Shield} label="Accept Rate" value={`${acceptRate}%`} color="accent" />
