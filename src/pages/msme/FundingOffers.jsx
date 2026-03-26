@@ -4,6 +4,7 @@ import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import { DollarSign, CheckCircle, Building, Trophy, ArrowDown } from 'lucide-react';
+import { logToLedger } from '../../services/blockchainService';
 
 export default function FundingOffers() {
   const { user } = useAuth();
@@ -36,6 +37,16 @@ export default function FundingOffers() {
         'stageStatuses.bidding': 'completed',
         'stageStatuses.acceptance': 'completed',
         'stageStatuses.funding': 'active'
+      });
+
+      // Log to blockchain
+      await logToLedger(invoiceId, 'offer_accepted', {
+        fromUser: user.uid,
+        fromName: user.email?.split('@')[0] || 'MSME',
+        toUser: funder.funderId,
+        toName: funder.name,
+        amount: funder.msmeReceives || 0,
+        metadata: { rate: funder.rate, discountAmount: funder.discountAmount }
       });
     } catch (err) {
       alert('Failed to accept: ' + err.message);

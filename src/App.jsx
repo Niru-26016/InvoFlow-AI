@@ -24,6 +24,9 @@ import ConfirmInvoice from './pages/buyer/ConfirmInvoice';
 import TrackFinancing from './pages/buyer/TrackFinancing';
 import MakePayment from './pages/buyer/MakePayment';
 
+// Shared pages
+import BlockchainLedger from './pages/BlockchainLedger';
+
 function RoleRedirect() {
   const { userRole, loading } = useAuth();
   if (loading) return null;
@@ -50,6 +53,7 @@ function App() {
             <Route path="verification" element={<VerificationStatus />} />
             <Route path="offers" element={<FundingOffers />} />
             <Route path="receive" element={<ReceiveMoney />} />
+            <Route path="ledger" element={<BlockchainLedger />} />
           </Route>
 
           {/* Funder Dashboard */}
@@ -60,6 +64,7 @@ function App() {
             <Route path="invoices" element={<AvailableInvoices />} />
             <Route path="risk" element={<RiskScores />} />
             <Route path="portfolio" element={<PortfolioPerformance />} />
+            <Route path="ledger" element={<BlockchainLedger />} />
           </Route>
 
           {/* Buyer Portal */}
@@ -70,6 +75,7 @@ function App() {
             <Route path="confirm" element={<ConfirmInvoice />} />
             <Route path="financing" element={<TrackFinancing />} />
             <Route path="payment" element={<MakePayment />} />
+            <Route path="ledger" element={<BlockchainLedger />} />
           </Route>
 
           {/* Catch all */}
