@@ -149,4 +149,8 @@ export const ACTION_LABELS = {
   payment_disbursed: { label: 'Payment Disbursed', color: 'primary', emoji: '💸' },
   settlement_msme: { label: 'Settlement → MSME', color: 'accent', emoji: '🏦' },
   settlement_funder: { label: 'Settlement → Funder', color: 'primary', emoji: '🏛️' },
+  escrow_deposit: { label: 'Deposited to Escrow', color: 'accent', emoji: '📥' },
+  escrow_withdrawal_msme: { label: 'Withdrawn from Escrow', color: 'accent', emoji: '📤' },
+  escrow_repayment: { label: 'Repayment to Escrow', color: 'primary', emoji: '📥' },
+  escrow_withdrawal_funder: { label: 'Settlement Withdrawn', color: 'primary', emoji: '📤' },
 };

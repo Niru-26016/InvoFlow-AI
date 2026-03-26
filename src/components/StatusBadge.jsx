@@ -12,6 +12,8 @@ const statusConfig = {
   accepted: { label: 'Accepted', color: 'bg-primary-500/15 text-primary-400 border-primary-500/30' },
   authentic: { label: '✅ Authentic', color: 'bg-accent-500/15 text-accent-400 border-accent-500/30' },
   suspicious: { label: '⚠️ Suspicious', color: 'bg-warning-500/15 text-warning-400 border-warning-500/30' },
+  escrow_funded: { label: 'In Escrow', color: 'bg-primary-500/15 text-primary-400 border-primary-500/30' },
+  escrow_settled: { label: 'Escrow Settled', color: 'bg-accent-500/15 text-accent-400 border-accent-500/30' },
 };
 
 export default function StatusBadge({ status }) {
