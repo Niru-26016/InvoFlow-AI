@@ -60,7 +60,7 @@ export default function MSMEDashboard() {
         <StatCard icon={FileText} label="Total Invoices" value={stats.total} color="primary" />
         <StatCard icon={CheckCircle} label="Verified" value={stats.verified} color="accent" />
         <StatCard icon={DollarSign} label="Funded" value={stats.funded} color="warning" />
-        <StatCard icon={TrendingUp} label="Total Value" value={`₹${(stats.totalAmount / 100000).toFixed(1)}L`} color="primary" />
+        <StatCard icon={TrendingUp} label="Total Value" value={`₹${stats.totalAmount >= 100000 ? (stats.totalAmount / 100000).toFixed(1) + 'L' : stats.totalAmount.toLocaleString('en-IN')}`} color="primary" />
       </div>
 
       {/* Recent Invoices */}

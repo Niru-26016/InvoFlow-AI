@@ -46,7 +46,7 @@ export default function PortfolioPerformance() {
 
       {/* Stats from real Firestore data */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={DollarSign} label="Total Funded" value={`₹${(totalFunded / 1000).toFixed(0)}K`} color="primary" />
+        <StatCard icon={DollarSign} label="Total Funded" value={`₹${totalFunded >= 100000 ? (totalFunded / 100000).toFixed(1) + 'L' : totalFunded.toLocaleString('en-IN')}`} color="primary" />
         <StatCard icon={TrendingUp} label="Avg Rate" value={`${avgRate}%`} color="accent" />
         <StatCard icon={BarChart3} label="Total Offers" value={totalOffers} color="warning" />
         <StatCard icon={Shield} label="Accept Rate" value={`${acceptRate}%`} color="accent" />
