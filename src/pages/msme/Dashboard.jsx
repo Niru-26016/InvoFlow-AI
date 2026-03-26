@@ -36,7 +36,7 @@ export default function MSMEDashboard() {
     total: invoices.length,
     verified: invoices.filter(i => i.status === 'verified' || i.status === 'funded' || i.status === 'bidding').length,
     funded: invoices.filter(i => i.status === 'funded' || i.status === 'settled').length,
-    totalAmount: invoices.filter(i => i.status === 'funded' || i.status === 'settled').reduce((sum, i) => sum + (i.amount || 0), 0),
+    totalAmount: invoices.filter(i => i.status === 'funded' || i.status === 'settled').reduce((sum, i) => sum + (i.acceptedFunder?.msmeReceives || i.amount || 0), 0),
   };
 
   return (
