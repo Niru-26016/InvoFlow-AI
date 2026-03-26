@@ -76,31 +76,33 @@ export default function ReceiveMoney() {
 
       {/* Escrow Wallet */}
       {inEscrow.length > 0 && (
-        <div className="mb-8 p-6 rounded-xl border border-primary-500/30 bg-primary-500/5">
+        <div className="mb-8 p-6 rounded-xl border" style={{ background: 'var(--th-bg-secondary)', borderColor: 'var(--th-border)' }}>
           <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-lg font-semibold text-white">Escrow Wallet</h2>
-            <span className="text-xs px-2 py-1 rounded-full bg-primary-500/20 text-primary-400 font-medium">
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--th-text)' }}>Escrow Wallet</h2>
+            <span className="text-xs px-2 py-1 rounded-full bg-primary-500/15 text-primary-600 dark:text-primary-400 font-medium">
               Ready to Withdraw ({inEscrow.length})
             </span>
           </div>
-          <p className="text-sm text-surface-400 mb-6">These funds have been deposited by funders and are securely held in escrow. Withdraw them to your linked bank account.</p>
+          <p className="text-sm mb-6" style={{ color: 'var(--th-text-muted)' }}>
+            These funds have been deposited by funders and are securely held in escrow. Withdraw them to your linked bank account.
+          </p>
 
           <div className="space-y-3">
             {inEscrow.map((inv) => (
-              <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-surface-900/50 rounded-xl border border-surface-700 gap-4">
+              <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border gap-4" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary-500/15 flex items-center justify-center">
-                    <ShieldCheck size={22} className="text-primary-400" />
+                  <div className="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                    <ShieldCheck size={22} className="text-primary-600 dark:text-primary-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">{inv.invoiceNumber}</p>
-                    <p className="text-xs text-surface-400">From Funder: {inv.acceptedFunder?.name || 'Funder'}</p>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber}</p>
+                    <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>From Funder: {inv.acceptedFunder?.name || 'Funder'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <p className="text-lg font-bold text-white">₹{(inv.acceptedFunder?.msmeReceives || inv.amount || 0).toLocaleString('en-IN')}</p>
-                    <p className="text-xs text-surface-500">Available to withdraw</p>
+                    <p className="text-lg font-bold" style={{ color: 'var(--th-text)' }}>₹{(inv.acceptedFunder?.msmeReceives || inv.amount || 0).toLocaleString('en-IN')}</p>
+                    <p className="text-xs" style={{ color: 'var(--th-text-faint)' }}>Available to withdraw</p>
                   </div>
                   <button
                     onClick={() => handleWithdraw(inv)}
@@ -108,7 +110,7 @@ export default function ReceiveMoney() {
                     className="px-5 py-2.5 gradient-primary rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50"
                   >
                     {withdrawingId === inv.id ? (
-                      <Loader2 size={16} className="animate-spin" />
+                      <Loader2 size={16} className="animate-spin text-white" />
                     ) : (
                       <><Banknote size={16} /> Withdraw to Bank</>
                     )}
