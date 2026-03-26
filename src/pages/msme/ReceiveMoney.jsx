@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import StatusBadge from '../../components/StatusBadge';
 import StatCard from '../../components/StatCard';
 import { Wallet, CheckCircle, Clock, DollarSign, ArrowDownCircle, ShieldCheck, Banknote, Loader2 } from 'lucide-react';
@@ -10,6 +11,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 
 export default function ReceiveMoney() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [withdrawingId, setWithdrawingId] = useState(null);
@@ -124,7 +126,7 @@ export default function ReceiveMoney() {
 
       {/* Transactions */}
       <div className="glass-card p-6">
-        <h2 className="text-lg font-semibold text-white mb-6">Settlement History</h2>
+        <h2 className="text-lg font-semibold mb-6" style={{ color: 'var(--th-text)' }}>Settlement History</h2>
         
         {loading ? (
           <div className="flex justify-center py-12">
@@ -139,7 +141,7 @@ export default function ReceiveMoney() {
         ) : (
           <div className="space-y-3">
             {[...received, ...pending].map((inv) => (
-              <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-surface-800/30 rounded-xl border border-surface-800 gap-3">
+              <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border gap-3" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                     inv.status === 'accepted' ? 'bg-warning-500/15' : 'bg-accent-500/15'
@@ -151,13 +153,13 @@ export default function ReceiveMoney() {
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">{inv.invoiceNumber}</p>
-                    <p className="text-xs text-surface-400">{inv.buyerName} • {inv.acceptedFunder?.name || 'Funder'}</p>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber}</p>
+                    <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>{inv.buyerName} • {inv.acceptedFunder?.name || 'Funder'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <p className="text-sm font-bold text-white">₹{(inv.acceptedFunder?.msmeReceives || inv.amount || 0).toLocaleString('en-IN')}</p>
+                    <p className="text-sm font-bold" style={{ color: 'var(--th-text)' }}>₹{(inv.acceptedFunder?.msmeReceives || inv.amount || 0).toLocaleString('en-IN')}</p>
                     <p className="text-xs text-surface-500">
                       Invoice: ₹{(inv.amount || 0).toLocaleString('en-IN')} • Discount: {inv.acceptedFunder?.rate || 0}%
                     </p>

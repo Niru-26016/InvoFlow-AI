@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import StatusBadge from '../../components/StatusBadge';
 import { FileText, DollarSign, Calendar, Shield, Percent, CheckCircle, Banknote, Loader2 } from 'lucide-react';
 import { logToLedger } from '../../services/blockchainService';
@@ -18,6 +19,7 @@ const RISK_LEVELS = {
 
 export default function AvailableInvoices() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [riskAppetite, setRiskAppetite] = useState('MEDIUM');
@@ -138,14 +140,14 @@ export default function AvailableInvoices() {
     <div className="animate-fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Available Invoices</h1>
-          <p className="text-surface-400 mt-1">Place bids on invoices matching your risk profile</p>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--th-text)' }}>Available Invoices</h1>
+          <p className="mt-1" style={{ color: 'var(--th-text-muted)' }}>Place bids on invoices matching your risk profile</p>
         </div>
       </div>
 
       {/* Risk Appetite Selector */}
       <div className="glass-card p-4 mb-6">
-        <p className="text-sm font-semibold text-surface-300 mb-3">Your Risk Appetite</p>
+        <p className="text-sm font-semibold mb-3" style={{ color: 'var(--th-text)' }}>Your Risk Appetite</p>
         <div className="flex flex-wrap gap-2">
           {Object.entries(RISK_LEVELS).map(([key, { label, desc }]) => (
             <button
@@ -163,13 +165,13 @@ export default function AvailableInvoices() {
             </button>
           ))}
         </div>
-        <p className="text-xs text-surface-500 mt-2">{RISK_LEVELS[riskAppetite].desc} (min score: {minScore})</p>
+        <p className="text-xs mt-2" style={{ color: 'var(--th-text-muted)' }}>{RISK_LEVELS[riskAppetite].desc} (min score: {minScore})</p>
       </div>
 
       {/* ─── Pending Disbursements ─── */}
       {acceptedInvoices.filter(i => i.status === 'accepted').length > 0 && (
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--th-text)' }}>
             <Banknote size={20} className="text-warning-400" />
             Pending Disbursements ({acceptedInvoices.filter(i => i.status === 'accepted').length})
           </h2>
@@ -178,18 +180,18 @@ export default function AvailableInvoices() {
               <div key={inv.id} className="glass-card p-5 border-warning-500/20">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-base font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0, 8)}</h3>
-                    <p className="text-surface-400 text-sm mt-0.5">
+                    <h3 className="text-base font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber || inv.id.slice(0, 8)}</h3>
+                    <p className="text-sm mt-0.5" style={{ color: 'var(--th-text-muted)' }}>
                       MSME: {inv.msmeCompanyName || 'N/A'} • Buyer: {inv.buyerName}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="text-xs text-surface-500">Amount to Pay</p>
-                      <p className="text-lg font-bold text-white">
+                      <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Amount to Pay</p>
+                      <p className="text-lg font-bold" style={{ color: 'var(--th-text)' }}>
                         ₹{(inv.acceptedFunder?.msmeReceives || inv.amount).toLocaleString('en-IN')}
                       </p>
-                      <p className="text-xs text-surface-500">
+                      <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>
                         Invoice: ₹{(inv.amount || 0).toLocaleString('en-IN')} • Discount: {inv.acceptedFunder?.rate}%
                       </p>
                     </div>
@@ -215,7 +217,7 @@ export default function AvailableInvoices() {
       {/* Funded History */}
       {acceptedInvoices.filter(i => ['funded', 'escrow_funded'].includes(i.status)).length > 0 && (
         <div className="mb-8">
-          <h2 className="text-sm font-semibold text-surface-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--th-text-muted)' }}>
             Recent Disbursements ({acceptedInvoices.filter(i => ['funded', 'escrow_funded'].includes(i.status)).length})
           </h2>
           <div className="space-y-3">
@@ -223,8 +225,8 @@ export default function AvailableInvoices() {
               <div key={inv.id} className="glass-card p-4 opacity-75">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0, 8)}</p>
-                    <p className="text-xs text-surface-400">Paid ₹{(inv.acceptedFunder?.msmeReceives || 0).toLocaleString('en-IN')} to {inv.msmeCompanyName || 'MSME'}</p>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber || inv.id.slice(0, 8)}</p>
+                    <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Paid ₹{(inv.acceptedFunder?.msmeReceives || 0).toLocaleString('en-IN')} to {inv.msmeCompanyName || 'MSME'}</p>
                   </div>
                   <StatusBadge status={inv.status} />
                 </div>
@@ -241,8 +243,8 @@ export default function AvailableInvoices() {
       ) : filteredInvoices.length === 0 ? (
         <div className="glass-card p-16 text-center">
           <FileText size={48} className="text-surface-600 mx-auto mb-4" />
-          <p className="text-surface-400 text-lg">No invoices match your risk profile</p>
-          <p className="text-surface-500 text-sm mt-2">Try changing your risk appetite to see more invoices</p>
+          <p className="text-lg" style={{ color: 'var(--th-text-muted)' }}>No invoices match your risk profile</p>
+          <p className="text-sm mt-2" style={{ color: 'var(--th-text-faint)' }}>Try changing your risk appetite to see more invoices</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -256,8 +258,8 @@ export default function AvailableInvoices() {
               <div key={inv.id} className="glass-card p-6 hover:glow-primary transition-all duration-300">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0, 8)}</h3>
-                    <p className="text-surface-400 text-sm mt-0.5">MSME: {inv.msmeEmail?.split('@')[0] || 'N/A'}</p>
+                    <h3 className="text-lg font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber || inv.id.slice(0, 8)}</h3>
+                    <p className="text-sm mt-0.5" style={{ color: 'var(--th-text-muted)' }}>MSME: {inv.msmeEmail?.split('@')[0] || 'N/A'}</p>
                   </div>
                   <span className={`text-xs px-3 py-1 rounded-full font-medium ${
                     inv.matchedFunders?.length > 0 ? 'bg-warning-500/15 text-warning-400' : 'bg-accent-500/15 text-accent-400'
@@ -267,35 +269,35 @@ export default function AvailableInvoices() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-surface-800/50 p-3 rounded-xl">
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                     <div className="flex items-center gap-2 mb-1">
                       <DollarSign size={14} className="text-primary-400" />
-                      <span className="text-xs text-surface-500">Invoice Value</span>
+                      <span className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Invoice Value</span>
                     </div>
-                    <p className="text-sm font-bold text-white">₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
+                    <p className="text-sm font-bold" style={{ color: 'var(--th-text)' }}>₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
                   </div>
-                  <div className="bg-surface-800/50 p-3 rounded-xl">
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                     <div className="flex items-center gap-2 mb-1">
                       <Calendar size={14} className="text-warning-400" />
-                      <span className="text-xs text-surface-500">Due Date</span>
+                      <span className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Due Date</span>
                     </div>
-                    <p className="text-sm font-bold text-white">{inv.dueDate || 'N/A'}</p>
+                    <p className="text-sm font-bold" style={{ color: 'var(--th-text)' }}>{inv.dueDate || 'N/A'}</p>
                   </div>
-                  <div className="bg-surface-800/50 p-3 rounded-xl">
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                     <div className="flex items-center gap-2 mb-1">
                       <Shield size={14} className="text-accent-400" />
-                      <span className="text-xs text-surface-500">Risk Score</span>
+                      <span className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Risk Score</span>
                     </div>
                     <p className={`text-sm font-bold ${riskColor}`}>
                       {riskScore}/100 ({inv.riskResult?.grade || 'N/A'})
                     </p>
                   </div>
-                  <div className="bg-surface-800/50 p-3 rounded-xl">
+                  <div className="p-3 rounded-xl border" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                     <div className="flex items-center gap-2 mb-1">
-                      <FileText size={14} className="text-surface-400" />
-                      <span className="text-xs text-surface-500">Buyer</span>
+                      <FileText size={14} className="text-surface-400 border-surface-700/50" />
+                      <span className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Buyer</span>
                     </div>
-                    <p className="text-sm font-bold text-white truncate">{inv.buyerName || 'N/A'}</p>
+                    <p className="text-sm font-bold truncate" style={{ color: 'var(--th-text)' }}>{inv.buyerName || 'N/A'}</p>
                   </div>
                 </div>
 
@@ -316,9 +318,9 @@ export default function AvailableInvoices() {
                           placeholder="Enter discount %"
                           value={bidRates[inv.id] || ''}
                           onChange={(e) => setBidRates(prev => ({ ...prev, [inv.id]: e.target.value }))}
-                          className="w-full px-4 py-2.5 rounded-xl bg-surface-800/50 border border-surface-700/50 text-white text-sm outline-none focus:border-primary-500/50 transition-all pr-8"
+                          className="w-full px-4 py-2.5 outline-none transition-all pr-8"
                         />
-                        <Percent size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-500" />
+                        <Percent size={14} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--th-text-muted)' }} />
                       </div>
                       <button
                         onClick={() => handleBid(inv)}
@@ -334,8 +336,8 @@ export default function AvailableInvoices() {
                     </div>
                     {/* Preview what MSME receives */}
                     {bidRates[inv.id] && parseFloat(bidRates[inv.id]) > 0 && (
-                      <p className="text-xs text-surface-400 px-1">
-                        MSME receives: <span className="text-white font-medium">
+                      <p className="text-xs px-1" style={{ color: 'var(--th-text-muted)' }}>
+                        MSME receives: <span className="font-medium" style={{ color: 'var(--th-text)' }}>
                           ₹{(inv.amount - Math.round(inv.amount * (parseFloat(bidRates[inv.id]) / 100))).toLocaleString('en-IN')}
                         </span>
                         {' '}(discount: ₹{Math.round(inv.amount * (parseFloat(bidRates[inv.id]) / 100)).toLocaleString('en-IN')})

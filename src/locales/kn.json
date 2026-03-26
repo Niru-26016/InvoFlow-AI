@@ -1,0 +1,75 @@
+{
+  "languages": { "en": "English", "hi": "हिन्दी", "ta": "தமிழ்", "te": "తెలుగు", "kn": "ಕನ್ನಡ", "ml": "മലയാളം" },
+  "nav": {
+    "msme_console": "MSME ಕನ್ಸೋಲ್", "funder_dashboard": "ಫಂಡರ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", "buyer_portal": "ಖರೀದಿದಾರ ಪೋರ್ಟಲ್",
+    "dashboard": "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", "upload_invoice": "ಇನ್‌ವಾಯ್ಸ್ ಅಪ್‌ಲೋಡ್", "verification_status": "ಪರಿಶೀಲನೆ ಸ್ಥಿತಿ",
+    "funding_offers": "ಫಂಡಿಂಗ್ ಆಫರ್‌ಗಳು", "receive_money": "ಹಣ ಸ್ವೀಕರಿಸಿ", "blockchain_ledger": "ಬ್ಲಾಕ್‌ಚೈನ್ ಲೆಡ್ಜರ್",
+    "available_invoices": "ಲಭ್ಯವಿರುವ ಇನ್‌ವಾಯ್ಸ್‌ಗಳು", "risk_scores": "ಅಪಾಯ ಅಂಕಗಳು", "portfolio": "ಪೋರ್ಟ್‌ಫೋಲಿಯೊ",
+    "confirm_invoice": "ಇನ್‌ವಾಯ್ಸ್ ದೃಢೀಕರಣ", "track_financing": "ಹಣಕಾಸು ಟ್ರ್ಯಾಕ್", "make_payment": "ಪಾವತಿ ಮಾಡಿ",
+    "agents_active": "ಏಜೆಂಟ್‌ಗಳು ಸಕ್ರಿಯ"
+  },
+  "common": {
+    "loading": "ಲೋಡ್ ಆಗುತ್ತಿದೆ...", "no_data": "ಯಾವುದೇ ಡೇಟಾ ಲಭ್ಯವಿಲ್ಲ", "view_all": "ಎಲ್ಲಾ ನೋಡಿ",
+    "submit": "ಸಲ್ಲಿಸಿ", "cancel": "ರದ್ದುಮಾಡಿ", "save": "ಉಳಿಸಿ", "delete": "ಅಳಿಸಿ",
+    "search": "ಹುಡುಕಿ", "filter": "ಫಿಲ್ಟರ್", "amount": "ಮೊತ್ತ", "rate": "ದರ", "risk": "ಅಪಾಯ",
+    "status": "ಸ್ಥಿತಿ", "date": "ದಿನಾಂಕ", "buyer": "ಖರೀದಿದಾರ", "invoice": "ಇನ್‌ವಾಯ್ಸ್",
+    "invoice_number": "ಇನ್‌ವಾಯ್ಸ್ #", "due_date": "ಮುಕ್ತಾಯ ದಿನಾಂಕ", "invoice_value": "ಇನ್‌ವಾಯ್ಸ್ ಮೌಲ್ಯ", "risk_score": "ಅಪಾಯ ಅಂಕ"
+  },
+  "status": {
+    "pending": "ಬಾಕಿ", "uploaded": "ಅಪ್‌ಲೋಡ್ ಆಗಿದೆ", "verified": "ಪರಿಶೀಲಿಸಲಾಗಿದೆ", "rejected": "ತಿರಸ್ಕರಿಸಲಾಗಿದೆ",
+    "bidding": "ಬಿಡ್ಡಿಂಗ್", "accepted": "ಸ್ವೀಕರಿಸಲಾಗಿದೆ", "funded": "ಹಣ ನೀಡಲಾಗಿದೆ", "settled": "ಪರಿಹರಿಸಲಾಗಿದೆ",
+    "escrow_funded": "ಎಸ್ಕ್ರೊದಲ್ಲಿ ಠೇವಣಿ", "escrow_settled": "ಎಸ್ಕ್ರೊ ಪರಿಹಾರ"
+  },
+  "msme": {
+    "dashboard_title": "MSME ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", "dashboard_subtitle": "ನಿಮ್ಮ ಇನ್‌ವಾಯ್ಸ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ ಮತ್ತು ಹಣಕಾಸನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ",
+    "upload_invoice_btn": "ಇನ್‌ವಾಯ್ಸ್ ಅಪ್‌ಲೋಡ್", "total_invoices": "ಒಟ್ಟು ಇನ್‌ವಾಯ್ಸ್‌ಗಳು", "verified": "ಪರಿಶೀಲಿಸಲಾಗಿದೆ",
+    "funded": "ಹಣ ನೀಡಲಾಗಿದೆ", "total_value": "ಒಟ್ಟು ಮೌಲ್ಯ", "recent_invoices": "ಇತ್ತೀಚಿನ ಇನ್‌ವಾಯ್ಸ್‌ಗಳು",
+    "no_invoices": "ಇನ್ನೂ ಇನ್‌ವಾಯ್ಸ್‌ಗಳಿಲ್ಲ", "upload_first": "ನಿಮ್ಮ ಮೊದಲ ಇನ್‌ವಾಯ್ಸ್ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ →",
+    "upload_title": "ಇನ್‌ವಾಯ್ಸ್ ಅಪ್‌ಲೋಡ್", "upload_subtitle": "AI ಪರಿಶೀಲನೆ ಮತ್ತು ಹಣಕಾಸಿಗಾಗಿ ಇನ್‌ವಾಯ್ಸ್ ಸಲ್ಲಿಸಿ",
+    "verification_title": "ಪರಿಶೀಲನೆ ಸ್ಥಿತಿ", "verification_subtitle": "ನಿಮ್ಮ ಇನ್‌ವಾಯ್ಸ್ ಪರಿಶೀಲನೆ ಪ್ರಗತಿಯನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ",
+    "offers_title": "ಫಂಡಿಂಗ್ ಆಫರ್‌ಗಳು", "offers_subtitle": "ಹೂಡಿಕೆದಾರರಿಂದ ಫಂಡಿಂಗ್ ಆಫರ್‌ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಸ್ವೀಕರಿಸಿ",
+    "receive_title": "ಹಣ ಸ್ವೀಕರಿಸಿ", "receive_subtitle": "ಪರಿಹಾರಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ ಮತ್ತು ನಿಧಿಗಳನ್ನು ಹಿಂಪಡೆಯಿರಿ",
+    "total_received": "ಒಟ್ಟು ಸ್ವೀಕರಿಸಿದ್ದು", "in_escrow": "ಎಸ್ಕ್ರೊದಲ್ಲಿ", "pending_disbursement": "ವಿತರಣೆ ಬಾಕಿ",
+    "escrow_wallet": "ಎಸ್ಕ್ರೊ ವ್ಯಾಲೆಟ್", "ready_to_withdraw": "ಹಿಂಪಡೆಯಲು ಸಿದ್ಧ",
+    "escrow_wallet_desc": "ಈ ನಿಧಿಗಳನ್ನು ಫಂಡರ್‌ಗಳು ಠೇವಣಿ ಇಟ್ಟಿದ್ದಾರೆ ಮತ್ತು ಎಸ್ಕ್ರೊದಲ್ಲಿ ಸುರಕ್ಷಿತವಾಗಿ ಇಡಲಾಗಿದೆ.",
+    "from_funder": "ಫಂಡರ್‌ನಿಂದ", "available_withdraw": "ಹಿಂಪಡೆಯಲು ಲಭ್ಯ", "withdraw_bank": "ಬ್ಯಾಂಕ್‌ಗೆ ಹಿಂಪಡೆಯಿರಿ",
+    "settlement_history": "ಪರಿಹಾರ ಇತಿಹಾಸ", "no_settlements": "ಇನ್ನೂ ಪರಿಹಾರಗಳಿಲ್ಲ",
+    "funds_appear": "ಎಸ್ಕ್ರೊದಿಂದ ಹಿಂಪಡೆದ ನಂತರ ನಿಧಿಗಳು ಇಲ್ಲಿ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತವೆ",
+    "accept_offer": "ಆಫರ್ ಸ್ವೀಕರಿಸಿ", "no_offers": "ಇನ್ನೂ ಫಂಡಿಂಗ್ ಆಫರ್‌ಗಳಿಲ್ಲ",
+    "offers_appear": "ಫಂಡರ್‌ಗಳು ನಿಮ್ಮ ಪರಿಶೀಲಿಸಿದ ಇನ್‌ವಾಯ್ಸ್‌ಗಳ ಮೇಲೆ ಬಿಡ್ ಮಾಡಿದಾಗ ಆಫರ್‌ಗಳು ಇಲ್ಲಿ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತವೆ"
+  },
+  "funder": {
+    "dashboard_title": "ಫಂಡರ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", "dashboard_subtitle": "ನಿಮ್ಮ ಹೂಡಿಕೆ ಪೋರ್ಟ್‌ಫೋಲಿಯೊ ಅವಲೋಕನ",
+    "total_funded": "ಒಟ್ಟು ಹಣ ನೀಡಿದ್ದು", "active_bids": "ಸಕ್ರಿಯ ಬಿಡ್‌ಗಳು", "settled_count": "ಪರಿಹರಿಸಿದವು", "total_returns": "ಒಟ್ಟು ಆದಾಯ",
+    "available_title": "ಲಭ್ಯವಿರುವ ಇನ್‌ವಾಯ್ಸ್‌ಗಳು", "available_subtitle": "ನಿಮ್ಮ ಅಪಾಯ ಪ್ರೊಫೈಲ್‌ಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಇನ್‌ವಾಯ್ಸ್‌ಗಳ ಮೇಲೆ ಬಿಡ್ ಮಾಡಿ",
+    "risk_appetite": "ನಿಮ್ಮ ಅಪಾಯ ಸಾಮರ್ಥ್ಯ", "pending_disbursements": "ಬಾಕಿ ವಿತರಣೆಗಳು", "disburse_escrow": "ಎಸ್ಕ್ರೊಗೆ ವಿತರಿಸಿ",
+    "recent_disbursements": "ಇತ್ತೀಚಿನ ವಿತರಣೆಗಳು", "no_invoices_match": "ನಿಮ್ಮ ಅಪಾಯ ಪ್ರೊಫೈಲ್‌ಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಇನ್‌ವಾಯ್ಸ್‌ಗಳಿಲ್ಲ",
+    "try_risk_appetite": "ಹೆಚ್ಚಿನ ಇನ್‌ವಾಯ್ಸ್‌ಗಳನ್ನು ನೋಡಲು ನಿಮ್ಮ ಅಪಾಯ ಸಾಮರ್ಥ್ಯವನ್ನು ಬದಲಾಯಿಸಿ",
+    "amount_to_pay": "ಪಾವತಿ ಮೊತ್ತ", "enter_discount": "ರಿಯಾಯಿತಿ % ನಮೂದಿಸಿ", "bid": "ಬಿಡ್", "bid_placed": "ಬಿಡ್ ಮಾಡಲಾಗಿದೆ",
+    "msme_receives": "MSME ಸ್ವೀಕರಿಸುತ್ತದೆ", "discount": "ರಿಯಾಯಿತಿ",
+    "risk_title": "ಅಪಾಯ ಅಂಕಗಳು", "risk_subtitle": "ಎಲ್ಲಾ ಇನ್‌ವಾಯ್ಸ್‌ಗಳಿಗೆ AI-ಚಾಲಿತ ಅಪಾಯ ಮೌಲ್ಯಮಾಪನ",
+    "portfolio_title": "ಪೋರ್ಟ್‌ಫೋಲಿಯೊ ಕಾರ್ಯಕ್ಷಮತೆ", "portfolio_subtitle": "ನಿಮ್ಮ ಹೂಡಿಕೆ ಆದಾಯ ಮತ್ತು ವಿಶ್ಲೇಷಣೆಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ",
+    "total_profit": "ಒಟ್ಟು ಲಾಭ", "avg_rate": "ಸರಾಸರಿ ದರ", "total_offers": "ಒಟ್ಟು ಆಫರ್‌ಗಳು", "accept_rate": "ಸ್ವೀಕೃತಿ ದರ",
+    "escrow_returns": "ಎಸ್ಕ್ರೊ ಆದಾಯ", "escrow_returns_desc": "ಖರೀದಿದಾರರು ಈ ಇನ್‌ವಾಯ್ಸ್‌ಗಳಿಗೆ ಎಸ್ಕ್ರೊದಲ್ಲಿ ಪಾವತಿಸಿದ್ದಾರೆ.",
+    "includes_profit": "ನಿಮ್ಮ ಲಾಭ ಮಿತಿ ಒಳಗೊಂಡಿದೆ", "withdraw_settlement": "ಪರಿಹಾರ ಹಿಂಪಡೆಯಿರಿ",
+    "funded_invoices": "ಹಣ ನೀಡಿದ ಇನ್‌ವಾಯ್ಸ್‌ಗಳು", "pending_offers": "ಬಾಕಿ ಆಫರ್‌ಗಳು", "awaiting_msme": "MSME ನಿರೀಕ್ಷೆ",
+    "no_investments": "ಇನ್ನೂ ಹೂಡಿಕೆಗಳಿಲ್ಲ", "make_offers": "ಪರಿಶೀಲಿಸಿದ ಇನ್‌ವಾಯ್ಸ್‌ಗಳ ಮೇಲೆ ಆಫರ್ ಮಾಡಿ", "my_investments": "ನನ್ನ ಹೂಡಿಕೆಗಳು"
+  },
+  "buyer": {
+    "dashboard_title": "ಖರೀದಿದಾರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", "dashboard_subtitle": "ಇನ್‌ವಾಯ್ಸ್ ದೃಢೀಕರಣಗಳು ಮತ್ತು ಪಾವತಿಗಳನ್ನು ನಿರ್ವಹಿಸಿ",
+    "pending_confirm": "ದೃಢೀಕರಣ ಬಾಕಿ", "total_confirmed": "ಒಟ್ಟು ದೃಢೀಕರಿಸಿದವು",
+    "confirm_title": "ಇನ್‌ವಾಯ್ಸ್ ದೃಢೀಕರಣ", "confirm_subtitle": "MSMEಗಳು ಸಲ್ಲಿಸಿದ ಇನ್‌ವಾಯ್ಸ್‌ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ",
+    "track_title": "ಹಣಕಾಸು ಟ್ರ್ಯಾಕ್", "track_subtitle": "ಇನ್‌ವಾಯ್ಸ್ ಹಣಕಾಸು ಪ್ರಗತಿಯನ್ನು ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ",
+    "payment_title": "ಪಾವತಿ ಮಾಡಿ", "payment_subtitle": "ಬಾಕಿ ಇನ್‌ವಾಯ್ಸ್‌ಗಳನ್ನು ಪರಿಹರಿಸಿ",
+    "due_to_msme": "MSMEಗೆ ಪಾವತಿಸಬೇಕಾದ", "due_to_funder": "ಫಂಡರ್‌ಗಳಿಗೆ ಪಾವತಿಸಬೇಕಾದ", "total_paid": "ಒಟ್ಟು ಪಾವತಿಸಿದ್ದು",
+    "pay_msme": "MSMEಗೆ ಪಾವತಿಸಬೇಕಾದ ಹಣ", "pay_funder": "ಫಂಡರ್‌ಗಳಿಗೆ ಪಾವತಿಸಬೇಕಾದ ಹಣ",
+    "pay_via_escrow": "ಎಸ್ಕ್ರೊ ಮೂಲಕ ಪಾವತಿಸಿ", "completed_payments": "ಪೂರ್ಣಗೊಂಡ ಪಾವತಿಗಳು",
+    "no_completed": "ಇನ್ನೂ ಪೂರ್ಣಗೊಂಡ ಪಾವತಿಗಳಿಲ್ಲ", "full_amount_msme": "ಪೂರ್ಣ ಇನ್‌ವಾಯ್ಸ್ ಮೊತ್ತ → MSME",
+    "full_amount_funder": "ಪೂರ್ಣ ಇನ್‌ವಾಯ್ಸ್ ಮೊತ್ತ → ಫಂಡರ್", "pay_to": "ಪಾವತಿಸಿ",
+    "direct_no_funder": "ನೇರ — ಫಂಡರ್ ಇಲ್ಲ", "funder_paid_msme": "ಫಂಡರ್ ಈಗಾಗಲೇ MSMEಗೆ ಪಾವತಿಸಿದ್ದಾರೆ"
+  },
+  "ledger": {
+    "title": "ಬ್ಲಾಕ್‌ಚೈನ್ ಲೆಡ್ಜರ್", "subtitle": "SHA-256 ಕ್ರಿಪ್ಟೋಗ್ರಾಫಿಕ್ ಹ್ಯಾಶಿಂಗ್ ಮೂಲಕ ಆಡಿಟ್ ಟ್ರಯಲ್",
+    "verify_chain": "ಚೈನ್ ಪರಿಶೀಲಿಸಿ", "total_blocks": "ಒಟ್ಟು ಬ್ಲಾಕ್‌ಗಳು", "chain_valid": "ಚೈನ್ ಮಾನ್ಯ", "latest_block": "ಇತ್ತೀಚಿನ ಬ್ಲಾಕ್"
+  }
+}
