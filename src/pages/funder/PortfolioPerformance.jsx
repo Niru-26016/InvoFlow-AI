@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import StatCard from '../../components/StatCard';
 import { TrendingUp, DollarSign, BarChart3, Shield, FileText, Banknote, Loader2, ShieldCheck } from 'lucide-react';
 import { logToLedger } from '../../services/blockchainService';
@@ -9,6 +10,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 
 export default function PortfolioPerformance() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [investments, setInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [withdrawingId, setWithdrawingId] = useState(null);
@@ -97,31 +99,33 @@ export default function PortfolioPerformance() {
         <>
           {/* Escrow Returns */}
           {escrowReturns.length > 0 && (
-            <div className="mb-8 p-6 rounded-xl border border-primary-500/30 bg-primary-500/5">
+            <div className="mb-8 p-6 rounded-xl border" style={{ background: 'var(--th-bg-secondary)', borderColor: 'var(--th-border)' }}>
               <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-lg font-semibold text-white">Escrow Returns</h2>
-                <span className="text-xs px-2 py-1 rounded-full bg-primary-500/20 text-primary-400 font-medium">
+                <h2 className="text-lg font-semibold" style={{ color: 'var(--th-text)' }}>Escrow Returns</h2>
+                <span className="text-xs px-2 py-1 rounded-full bg-primary-500/15 text-primary-600 dark:text-primary-400 font-medium">
                   Ready to Withdraw ({escrowReturns.length})
                 </span>
               </div>
-              <p className="text-sm text-surface-400 mb-6">Buyers have paid these invoices into the platform escrow. Withdraw your principal + profit to your bank account.</p>
+              <p className="text-sm mb-6" style={{ color: 'var(--th-text-muted)' }}>
+                Buyers have paid these invoices into the platform escrow. Withdraw your principal + profit to your bank account.
+              </p>
 
               <div className="space-y-3">
                 {escrowReturns.map((inv) => (
-                  <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-surface-900/50 rounded-xl border border-surface-700 gap-4">
+                  <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border gap-4" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary-500/15 flex items-center justify-center">
-                        <ShieldCheck size={22} className="text-primary-400" />
+                      <div className="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                        <ShieldCheck size={22} className="text-primary-600 dark:text-primary-400" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-white">{inv.invoiceNumber}</p>
-                        <p className="text-xs text-surface-400">Buyer: {inv.buyerName || 'N/A'}</p>
+                        <p className="text-sm font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber}</p>
+                        <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Buyer: {inv.buyerName || 'N/A'}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-lg font-bold text-white">₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
-                        <p className="text-xs text-surface-500">Includes your profit limit</p>
+                        <p className="text-lg font-bold" style={{ color: 'var(--th-text)' }}>₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
+                        <p className="text-xs" style={{ color: 'var(--th-text-faint)' }}>Includes your profit limit</p>
                       </div>
                       <button
                         onClick={() => handleWithdraw(inv)}
@@ -129,7 +133,7 @@ export default function PortfolioPerformance() {
                         className="px-5 py-2.5 gradient-primary rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50"
                       >
                         {withdrawingId === inv.id ? (
-                          <Loader2 size={16} className="animate-spin" />
+                          <Loader2 size={16} className="animate-spin text-white" />
                         ) : (
                           <><Banknote size={16} /> Withdraw Settlement</>
                         )}
@@ -144,29 +148,29 @@ export default function PortfolioPerformance() {
           {/* Funded Invoices */}
           {funded.length > 0 && (
             <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Funded Invoices ({funded.length})</h3>
+              <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--th-text)' }}>Funded Invoices ({funded.length})</h3>
               <div className="space-y-3">
                 {funded.map(inv => (
-                  <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-surface-800/30 rounded-xl gap-4">
+                  <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-xl gap-4" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                     <div>
-                      <p className="text-sm font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0,8)}</p>
-                      <p className="text-xs text-surface-400">Buyer: {inv.buyerName || 'N/A'}</p>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber || inv.id.slice(0,8)}</p>
+                      <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Buyer: {inv.buyerName || 'N/A'}</p>
                     </div>
                     <div className="flex items-center gap-6">
                       <div className="text-center">
-                        <p className="text-xs text-surface-500">Amount</p>
-                        <p className="text-sm font-bold text-white">₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
+                        <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Amount</p>
+                        <p className="text-sm font-bold" style={{ color: 'var(--th-text)' }}>₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs text-surface-500">Rate</p>
+                        <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Rate</p>
                         <p className="text-sm font-bold text-accent-400">{inv.acceptedFunder?.rate}%</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-xs text-surface-500">Risk</p>
+                        <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Risk</p>
                         <p className="text-sm font-bold text-warning-400">{inv.riskResult?.grade || 'N/A'}</p>
                       </div>
                       <div className="text-center ml-4">
-                        <p className="text-xs text-surface-500">Status</p>
+                        <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Status</p>
                         <p className={`text-sm font-bold ${
                           inv.status === 'settled' ? 'text-accent-400' :
                           inv.status === 'escrow_settled' ? 'text-primary-400' :
@@ -187,24 +191,24 @@ export default function PortfolioPerformance() {
           {/* Pending Offers (made offer but not yet accepted by MSME) */}
           {investments.filter(i => i.acceptedFunder?.funderId !== user?.uid && i.status === 'bidding').length > 0 && (
             <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Pending Offers</h3>
+              <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--th-text)' }}>Pending Offers</h3>
               <div className="space-y-3">
                 {investments
                   .filter(i => i.acceptedFunder?.funderId !== user?.uid && i.status === 'bidding')
                   .map(inv => {
                     const myOffer = inv.matchedFunders?.find(f => f.funderId === user?.uid);
                     return (
-                      <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-surface-800/30 rounded-xl gap-4">
+                      <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-xl gap-4" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                         <div>
-                          <p className="text-sm font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0,8)}</p>
-                          <p className="text-xs text-surface-400">Buyer: {inv.buyerName || 'N/A'} • ₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
+                          <p className="text-sm font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber || inv.id.slice(0,8)}</p>
+                          <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Buyer: {inv.buyerName || 'N/A'} • ₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="text-center">
-                            <p className="text-xs text-surface-500">My Rate</p>
+                            <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>My Rate</p>
                             <p className="text-sm font-bold text-primary-400">{myOffer?.rate || '—'}%</p>
                           </div>
-                          <span className="text-xs px-3 py-1 rounded-full font-medium bg-warning-500/15 text-warning-400">
+                          <span className="text-xs px-3 py-1 rounded-full font-medium bg-warning-500/15 text-warning-500 dark:text-warning-400">
                             Awaiting MSME
                           </span>
                         </div>

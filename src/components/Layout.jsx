@@ -1,50 +1,62 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { 
   LayoutDashboard, Upload, CheckCircle, DollarSign, Wallet,
   FileText, Shield, BarChart3, Building, CreditCard, TrendingUp,
-  LogOut, Menu, X, Zap, ChevronRight, Sun, Moon, Link2
+  LogOut, Menu, X, Zap, ChevronRight, Sun, Moon, Link2, Globe
 } from 'lucide-react';
 
 const navigationConfig = {
   msme: {
-    title: 'MSME Console',
+    titleKey: 'nav.msme_console',
     items: [
-      { path: '/msme', label: 'Dashboard', icon: LayoutDashboard, end: true },
-      { path: '/msme/upload', label: 'Upload Invoice', icon: Upload },
-      { path: '/msme/verification', label: 'Verification Status', icon: CheckCircle },
-      { path: '/msme/offers', label: 'Funding Offers', icon: DollarSign },
-      { path: '/msme/receive', label: 'Receive Money', icon: Wallet },
-      { path: '/msme/ledger', label: 'Blockchain Ledger', icon: Link2 },
+      { path: '/msme', labelKey: 'nav.dashboard', icon: LayoutDashboard, end: true },
+      { path: '/msme/upload', labelKey: 'nav.upload_invoice', icon: Upload },
+      { path: '/msme/verification', labelKey: 'nav.verification_status', icon: CheckCircle },
+      { path: '/msme/offers', labelKey: 'nav.funding_offers', icon: DollarSign },
+      { path: '/msme/receive', labelKey: 'nav.receive_money', icon: Wallet },
+      { path: '/msme/ledger', labelKey: 'nav.blockchain_ledger', icon: Link2 },
     ]
   },
   funder: {
-    title: 'Funder Dashboard',
+    titleKey: 'nav.funder_dashboard',
     items: [
-      { path: '/funder', label: 'Dashboard', icon: LayoutDashboard, end: true },
-      { path: '/funder/invoices', label: 'Available Invoices', icon: FileText },
-      { path: '/funder/risk', label: 'Risk Scores', icon: Shield },
-      { path: '/funder/portfolio', label: 'Portfolio', icon: BarChart3 },
-      { path: '/funder/ledger', label: 'Blockchain Ledger', icon: Link2 },
+      { path: '/funder', labelKey: 'nav.dashboard', icon: LayoutDashboard, end: true },
+      { path: '/funder/invoices', labelKey: 'nav.available_invoices', icon: FileText },
+      { path: '/funder/risk', labelKey: 'nav.risk_scores', icon: Shield },
+      { path: '/funder/portfolio', labelKey: 'nav.portfolio', icon: BarChart3 },
+      { path: '/funder/ledger', labelKey: 'nav.blockchain_ledger', icon: Link2 },
     ]
   },
   buyer: {
-    title: 'Buyer Portal',
+    titleKey: 'nav.buyer_portal',
     items: [
-      { path: '/buyer', label: 'Dashboard', icon: LayoutDashboard, end: true },
-      { path: '/buyer/confirm', label: 'Confirm Invoice', icon: Building },
-      { path: '/buyer/financing', label: 'Track Financing', icon: TrendingUp },
-      { path: '/buyer/payment', label: 'Make Payment', icon: CreditCard },
-      { path: '/buyer/ledger', label: 'Blockchain Ledger', icon: Link2 },
+      { path: '/buyer', labelKey: 'nav.dashboard', icon: LayoutDashboard, end: true },
+      { path: '/buyer/confirm', labelKey: 'nav.confirm_invoice', icon: Building },
+      { path: '/buyer/financing', labelKey: 'nav.track_financing', icon: TrendingUp },
+      { path: '/buyer/payment', labelKey: 'nav.make_payment', icon: CreditCard },
+      { path: '/buyer/ledger', labelKey: 'nav.blockchain_ledger', icon: Link2 },
     ]
   }
 };
 
+const LANGUAGES = [
+  { code: 'en', label: 'EN' },
+  { code: 'hi', label: 'हि' },
+  { code: 'ta', label: 'த' },
+  { code: 'te', label: 'తె' },
+  { code: 'kn', label: 'ಕ' },
+  { code: 'ml', label: 'മ' },
+];
+
 export default function Layout() {
   const { user, userRole, logout } = useAuth();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem('invoflow-theme') === 'dark';
   });
@@ -58,6 +70,11 @@ export default function Layout() {
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+  };
+
+  const changeLanguage = (code) => {
+    i18n.changeLanguage(code);
+    setLangOpen(false);
   };
 
   return (
@@ -86,7 +103,7 @@ export default function Layout() {
 
         {/* Role badge */}
         <div className="px-6 py-4">
-          <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--th-text-faint)' }}>{nav.title}</span>
+          <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--th-text-faint)' }}>{t(nav.titleKey)}</span>
         </div>
 
         {/* Navigation */}
@@ -107,7 +124,7 @@ export default function Layout() {
               })}
             >
               <item.icon size={18} className="flex-shrink-0" />
-              <span className="flex-1">{item.label}</span>
+              <span className="flex-1">{t(item.labelKey)}</span>
               <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
             </NavLink>
           ))}
@@ -141,7 +158,45 @@ export default function Layout() {
           >
             <Menu size={20} />
           </button>
-          <div className="flex items-center gap-4 ml-auto">
+          <div className="flex items-center gap-3 ml-auto">
+            {/* Language Switcher */}
+            <div className="relative">
+              <button
+                onClick={() => setLangOpen(!langOpen)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300"
+                style={{ background: 'var(--th-bg-card)', border: '1px solid var(--th-border)', color: 'var(--th-text)' }}
+                title="Change Language"
+              >
+                <Globe size={16} className="text-primary-500" />
+                <span>{t(`languages.${i18n.language?.split('-')[0]}`) || i18n.language?.toUpperCase()}</span>
+              </button>
+              {langOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
+                  <div className="absolute right-0 top-12 z-50 min-w-[160px] rounded-xl overflow-hidden shadow-xl" style={{ background: 'var(--th-bg-card)', border: '1px solid var(--th-border)' }}>
+                    {LANGUAGES.map(({ code, label }) => (
+                      <button
+                        key={code}
+                        onClick={() => changeLanguage(code)}
+                        className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors flex items-center gap-3 ${
+                          i18n.language?.split('-')[0] === code ? 'text-primary-500' : ''
+                        }`}
+                        style={{
+                          color: i18n.language?.split('-')[0] === code ? undefined : 'var(--th-text)',
+                          background: i18n.language?.split('-')[0] === code ? 'var(--th-active-bg)' : 'transparent',
+                        }}
+                        onMouseEnter={(e) => { if (i18n.language?.split('-')[0] !== code) e.target.style.background = 'var(--th-hover-bg)'; }}
+                        onMouseLeave={(e) => { if (i18n.language?.split('-')[0] !== code) e.target.style.background = 'transparent'; }}
+                      >
+                        <span className="text-base">{label}</span>
+                        <span>{t(`languages.${code}`)}</span>
+                        {i18n.language?.split('-')[0] === code && <CheckCircle size={14} className="ml-auto" />}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             {/* Theme toggle */}
             <button
               onClick={() => setIsDark(!isDark)}
@@ -153,7 +208,7 @@ export default function Layout() {
             </button>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-accent-400 animate-pulse" />
-              <span className="text-sm" style={{ color: 'var(--th-text-muted)' }}>Agents Active</span>
+              <span className="text-sm" style={{ color: 'var(--th-text-muted)' }}>{t('nav.agents_active')}</span>
             </div>
           </div>
         </header>

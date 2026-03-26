@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import StatusBadge from '../../components/StatusBadge';
 import StatCard from '../../components/StatCard';
 import { CreditCard, CheckCircle, Clock, DollarSign, Banknote, Building, User } from 'lucide-react';
@@ -9,6 +10,7 @@ import { logToLedger } from '../../services/blockchainService';
 
 export default function MakePayment() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(null);
@@ -135,8 +137,8 @@ export default function MakePayment() {
                       <User size={22} className="text-accent-400" />
                     </div>
                     <div>
-                      <p className="text-lg font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0,8)}</p>
-                      <p className="text-sm text-surface-400">
+                      <p className="text-lg font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber || inv.id.slice(0,8)}</p>
+                      <p className="text-sm" style={{ color: 'var(--th-text-muted)' }}>
                         MSME: {inv.msmeCompanyName || inv.msmeEmail?.split('@')[0] || 'N/A'} • Due: {inv.dueDate || 'N/A'}
                       </p>
                       <p className="text-xs text-accent-400 mt-1 flex items-center gap-1">
@@ -146,8 +148,8 @@ export default function MakePayment() {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="text-xl font-bold text-white">₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
-                      <p className="text-xs text-surface-500">Full invoice amount → MSME</p>
+                      <p className="text-xl font-bold" style={{ color: 'var(--th-text)' }}>₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
+                      <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Full invoice amount → MSME</p>
                     </div>
                     <button
                       onClick={() => handlePayMSME(inv)}
@@ -183,8 +185,8 @@ export default function MakePayment() {
                       <Banknote size={22} className="text-warning-400" />
                     </div>
                     <div>
-                      <p className="text-lg font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0,8)}</p>
-                      <p className="text-sm text-surface-400">
+                      <p className="text-lg font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber || inv.id.slice(0,8)}</p>
+                      <p className="text-sm" style={{ color: 'var(--th-text-muted)' }}>
                         MSME: {inv.msmeCompanyName || 'N/A'} • Due: {inv.dueDate || 'N/A'}
                       </p>
                       <p className="text-xs text-primary-400 mt-1 flex items-center gap-1">
@@ -194,8 +196,8 @@ export default function MakePayment() {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="text-xl font-bold text-white">₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
-                      <p className="text-xs text-surface-500">Full invoice amount → Funder</p>
+                      <p className="text-xl font-bold" style={{ color: 'var(--th-text)' }}>₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
+                      <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>Full invoice amount → Funder</p>
                     </div>
                     <button
                       onClick={() => handlePayFunder(inv)}
@@ -229,14 +231,14 @@ export default function MakePayment() {
         ) : (
           <div className="glass-card p-6 space-y-3">
             {completed.map((inv) => (
-              <div key={inv.id} className="flex items-center justify-between p-4 bg-surface-800/30 rounded-xl border border-surface-800">
+              <div key={inv.id} className="flex items-center justify-between p-4 rounded-xl border" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-accent-500/15 flex items-center justify-center">
-                    <CheckCircle size={18} className="text-accent-400" />
+                    <CheckCircle size={18} className="text-accent-500 dark:text-accent-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0,8)}</p>
-                    <p className="text-xs text-surface-400">
+                    <p className="text-sm font-semibold" style={{ color: 'var(--th-text)' }}>{inv.invoiceNumber || inv.id.slice(0,8)}</p>
+                    <p className="text-xs" style={{ color: 'var(--th-text-muted)' }}>
                       Paid ₹{(inv.amount || 0).toLocaleString('en-IN')} to {inv.buyerPaidTo === 'funder'
                         ? `${inv.buyerPaidToName || inv.acceptedFunder?.name || 'Funder'} (Funder)`
                         : `${inv.buyerPaidToName || inv.msmeCompanyName || 'MSME'} (MSME)`

@@ -1,0 +1,75 @@
+{
+  "languages": { "en": "English", "hi": "हिन्दी", "ta": "தமிழ்", "te": "తెలుగు", "kn": "ಕನ್ನಡ", "ml": "മലയാളം" },
+  "nav": {
+    "msme_console": "MSME കൺസോൾ", "funder_dashboard": "ഫണ്ടർ ഡാഷ്ബോർഡ്", "buyer_portal": "വാങ്ങുന്നയാളുടെ പോർട്ടൽ",
+    "dashboard": "ഡാഷ്ബോർഡ്", "upload_invoice": "ഇൻവോയ്സ് അപ്‌ലോഡ്", "verification_status": "പരിശോധനാ നില",
+    "funding_offers": "ഫണ്ടിംഗ് ഓഫറുകൾ", "receive_money": "പണം സ്വീകരിക്കുക", "blockchain_ledger": "ബ്ലോക്ക്ചെയിൻ ലെഡ്ജർ",
+    "available_invoices": "ലഭ്യമായ ഇൻവോയ്സുകൾ", "risk_scores": "റിസ്ക് സ്കോറുകൾ", "portfolio": "പോർട്ട്ഫോളിയോ",
+    "confirm_invoice": "ഇൻവോയ്സ് സ്ഥിരീകരണം", "track_financing": "ധനസഹായം ട്രാക്ക്", "make_payment": "പണം അടയ്ക്കുക",
+    "agents_active": "ഏജന്റുമാർ സജീവം"
+  },
+  "common": {
+    "loading": "ലോഡ് ചെയ്യുന്നു...", "no_data": "ഡാറ്റ ലഭ്യമല്ല", "view_all": "എല്ലാം കാണുക",
+    "submit": "സമർപ്പിക്കുക", "cancel": "റദ്ദാക്കുക", "save": "സേവ് ചെയ്യുക", "delete": "ഇല്ലാതാക്കുക",
+    "search": "തിരയുക", "filter": "ഫിൽട്ടർ", "amount": "തുക", "rate": "നിരക്ക്", "risk": "അപകടസാധ്യത",
+    "status": "നില", "date": "തീയതി", "buyer": "വാങ്ങുന്നയാൾ", "invoice": "ഇൻവോയ്സ്",
+    "invoice_number": "ഇൻവോയ്സ് #", "due_date": "നിശ്ചിത തീയതി", "invoice_value": "ഇൻവോയ്സ് മൂല്യം", "risk_score": "റിസ്ക് സ്കോർ"
+  },
+  "status": {
+    "pending": "തീർപ്പുകൽപ്പിക്കാത്തത്", "uploaded": "അപ്‌ലോഡ് ചെയ്തു", "verified": "പരിശോധിച്ചു", "rejected": "നിരസിച്ചു",
+    "bidding": "ലേലം", "accepted": "അംഗീകരിച്ചു", "funded": "ഫണ്ട് ചെയ്തു", "settled": "തീർപ്പാക്കി",
+    "escrow_funded": "എസ്ക്രോയിൽ നിക്ഷേപം", "escrow_settled": "എസ്ക്രോ തീർപ്പ്"
+  },
+  "msme": {
+    "dashboard_title": "MSME ഡാഷ്ബോർഡ്", "dashboard_subtitle": "നിങ്ങളുടെ ഇൻവോയ്സുകൾ നിയന്ത്രിക്കുകയും ധനസഹായം ട്രാക്ക് ചെയ്യുകയും ചെയ്യുക",
+    "upload_invoice_btn": "ഇൻവോയ്സ് അപ്‌ലോഡ്", "total_invoices": "ആകെ ഇൻവോയ്സുകൾ", "verified": "പരിശോധിച്ചവ",
+    "funded": "ഫണ്ട് ചെയ്തവ", "total_value": "ആകെ മൂല്യം", "recent_invoices": "സമീപത്തെ ഇൻവോയ്സുകൾ",
+    "no_invoices": "ഇൻവോയ്സുകൾ ഇതുവരെ ഇല്ല", "upload_first": "നിങ്ങളുടെ ആദ്യ ഇൻവോയ്സ് അപ്‌ലോഡ് ചെയ്യുക →",
+    "upload_title": "ഇൻവോയ്സ് അപ്‌ലോഡ്", "upload_subtitle": "AI പരിശോധനയ്ക്കും ഫണ്ടിംഗിനുമായി ഇൻവോയ്സ് സമർപ്പിക്കുക",
+    "verification_title": "പരിശോധനാ നില", "verification_subtitle": "നിങ്ങളുടെ ഇൻവോയ്സ് പരിശോധന പുരോഗതി ട്രാക്ക് ചെയ്യുക",
+    "offers_title": "ഫണ്ടിംഗ് ഓഫറുകൾ", "offers_subtitle": "നിക്ഷേപകരിൽ നിന്നുള്ള ഫണ്ടിംഗ് ഓഫറുകൾ അവലോകനം ചെയ്ത് സ്വീകരിക്കുക",
+    "receive_title": "പണം സ്വീകരിക്കുക", "receive_subtitle": "തീർപ്പുകൾ ട്രാക്ക് ചെയ്യുകയും ഫണ്ടുകൾ പിൻവലിക്കുകയും ചെയ്യുക",
+    "total_received": "ആകെ ലഭിച്ചത്", "in_escrow": "എസ്ക്രോയിൽ", "pending_disbursement": "വിതരണം തീർപ്പുകൽപ്പിക്കാത്തത്",
+    "escrow_wallet": "എസ്ക്രോ വാലറ്റ്", "ready_to_withdraw": "പിൻവലിക്കാൻ തയ്യാറാണ്",
+    "escrow_wallet_desc": "ഈ ഫണ്ടുകൾ ഫണ്ടർമാർ നിക്ഷേപിച്ചവയാണ്, എസ്ക്രോയിൽ സുരക്ഷിതമായി സൂക്ഷിച്ചിരിക്കുന്നു.",
+    "from_funder": "ഫണ്ടറിൽ നിന്ന്", "available_withdraw": "പിൻവലിക്കാൻ ലഭ്യമാണ്", "withdraw_bank": "ബാങ്കിലേക്ക് പിൻവലിക്കുക",
+    "settlement_history": "തീർപ്പ് ചരിത്രം", "no_settlements": "ഇതുവരെ തീർപ്പുകൾ ഇല്ല",
+    "funds_appear": "എസ്ക്രോയിൽ നിന്ന് പിൻവലിച്ച ശേഷം ഫണ്ടുകൾ ഇവിടെ കാണാം",
+    "accept_offer": "ഓഫർ സ്വീകരിക്കുക", "no_offers": "ഫണ്ടിംഗ് ഓഫറുകൾ ഇതുവരെ ഇല്ല",
+    "offers_appear": "ഫണ്ടർമാർ നിങ്ങളുടെ പരിശോധിച്ച ഇൻവോയ്സുകളിൽ ലേലം വിളിക്കുമ്പോൾ ഓഫറുകൾ ഇവിടെ കാണാം"
+  },
+  "funder": {
+    "dashboard_title": "ഫണ്ടർ ഡാഷ്ബോർഡ്", "dashboard_subtitle": "നിങ്ങളുടെ നിക്ഷേപ പോർട്ട്ഫോളിയോ അവലോകനം",
+    "total_funded": "ആകെ ഫണ്ട് ചെയ്തത്", "active_bids": "സജീവ ലേലങ്ങൾ", "settled_count": "തീർപ്പാക്കിയവ", "total_returns": "ആകെ വരുമാനം",
+    "available_title": "ലഭ്യമായ ഇൻവോയ്സുകൾ", "available_subtitle": "നിങ്ങളുടെ റിസ്ക് പ്രൊഫൈലിന് യോജിച്ച ഇൻവോയ്സുകളിൽ ലേലം വിളിക്കുക",
+    "risk_appetite": "നിങ്ങളുടെ റിസ്ക് ശേഷി", "pending_disbursements": "തീർപ്പുകൽപ്പിക്കാത്ത വിതരണങ്ങൾ", "disburse_escrow": "എസ്ക്രോയിലേക്ക് വിതരണം ചെയ്യുക",
+    "recent_disbursements": "സമീപത്തെ വിതരണങ്ങൾ", "no_invoices_match": "നിങ്ങളുടെ റിസ്ക് പ്രൊഫൈലിന് യോജിച്ച ഇൻവോയ്സുകൾ ഇല്ല",
+    "try_risk_appetite": "കൂടുതൽ ഇൻവോയ്സുകൾ കാണാൻ റിസ്ക് ശേഷി മാറ്റുക",
+    "amount_to_pay": "അടയ്ക്കേണ്ട തുക", "enter_discount": "കിഴിവ് % നൽകുക", "bid": "ലേലം", "bid_placed": "ലേലം വിളിച്ചു",
+    "msme_receives": "MSME ലഭിക്കും", "discount": "കിഴിവ്",
+    "risk_title": "റിസ്ക് സ്കോറുകൾ", "risk_subtitle": "എല്ലാ ഇൻവോയ്സുകൾക്കും AI അധിഷ്ഠിത റിസ്ക് വിലയിരുത്തൽ",
+    "portfolio_title": "പോർട്ട്ഫോളിയോ പ്രകടനം", "portfolio_subtitle": "നിങ്ങളുടെ നിക്ഷേപ വരുമാനവും വിശകലനവും ട്രാക്ക് ചെയ്യുക",
+    "total_profit": "ആകെ ലാഭം", "avg_rate": "ശരാശരി നിരക്ക്", "total_offers": "ആകെ ഓഫറുകൾ", "accept_rate": "സ്വീകാര്യത നിരക്ക്",
+    "escrow_returns": "എസ്ക്രോ വരുമാനം", "escrow_returns_desc": "വാങ്ങുന്നവർ ഈ ഇൻവോയ്സുകൾക്ക് എസ്ക്രോയിൽ പണം അടച്ചു.",
+    "includes_profit": "നിങ്ങളുടെ ലാഭ പരിധി ഉൾപ്പെടുന്നു", "withdraw_settlement": "തീർപ്പ് പിൻവലിക്കുക",
+    "funded_invoices": "ഫണ്ട് ചെയ്ത ഇൻവോയ്സുകൾ", "pending_offers": "തീർപ്പുകൽപ്പിക്കാത്ത ഓഫറുകൾ", "awaiting_msme": "MSME പ്രതീക്ഷ",
+    "no_investments": "ഇതുവരെ നിക്ഷേപങ്ങൾ ഇല്ല", "make_offers": "പോർട്ട്ഫോളിയോ നിർമ്മിക്കാൻ പരിശോധിച്ച ഇൻവോയ്സുകളിൽ ഓഫർ നൽകുക", "my_investments": "എന്റെ നിക്ഷേപങ്ങൾ"
+  },
+  "buyer": {
+    "dashboard_title": "വാങ്ങുന്നയാളുടെ ഡാഷ്ബോർഡ്", "dashboard_subtitle": "ഇൻവോയ്സ് സ്ഥിരീകരണങ്ങളും പേയ്മെന്റുകളും നിയന്ത്രിക്കുക",
+    "pending_confirm": "സ്ഥിരീകരണം തീർപ്പുകൽപ്പിക്കാത്തത്", "total_confirmed": "ആകെ സ്ഥിരീകരിച്ചവ",
+    "confirm_title": "ഇൻവോയ്സ് സ്ഥിരീകരണം", "confirm_subtitle": "MSMEകൾ സമർപ്പിച്ച ഇൻവോയ്സുകൾ അവലോകനം ചെയ്ത് സ്ഥിരീകരിക്കുക",
+    "track_title": "ധനസഹായം ട്രാക്ക്", "track_subtitle": "ഇൻവോയ്സ് ധനസഹായ പുരോഗതി നിരീക്ഷിക്കുക",
+    "payment_title": "പണം അടയ്ക്കുക", "payment_subtitle": "ബാക്കിയുള്ള ഇൻവോയ്സുകൾ തീർപ്പാക്കുക",
+    "due_to_msme": "MSMEയ്ക്ക് നൽകേണ്ടത്", "due_to_funder": "ഫണ്ടർമാർക്ക് നൽകേണ്ടത്", "total_paid": "ആകെ അടച്ചത്",
+    "pay_msme": "MSMEയ്ക്ക് നൽകേണ്ട പണം", "pay_funder": "ഫണ്ടർമാർക്ക് നൽകേണ്ട പണം",
+    "pay_via_escrow": "എസ്ക്രോ വഴി അടയ്ക്കുക", "completed_payments": "പൂർത്തിയാക്കിയ പേയ്മെന്റുകൾ",
+    "no_completed": "ഇതുവരെ പൂർത്തിയാക്കിയ പേയ്മെന്റുകൾ ഇല്ല", "full_amount_msme": "മുഴുവൻ ഇൻവോയ്സ് തുക → MSME",
+    "full_amount_funder": "മുഴുവൻ ഇൻവോയ്സ് തുക → ഫണ്ടർ", "pay_to": "പണം അടയ്ക്കുക",
+    "direct_no_funder": "നേരിട്ട് — ഫണ്ടർ ഇല്ല", "funder_paid_msme": "ഫണ്ടർ ഇതിനകം MSMEയ്ക്ക് അടച്ചു"
+  },
+  "ledger": {
+    "title": "ബ്ലോക്ക്ചെയിൻ ലെഡ്ജർ", "subtitle": "SHA-256 ക്രിപ്റ്റോഗ്രാഫിക് ഹാഷിംഗ് വഴി ഓഡിറ്റ് ട്രയൽ",
+    "verify_chain": "ചെയിൻ പരിശോധിക്കുക", "total_blocks": "ആകെ ബ്ലോക്കുകൾ", "chain_valid": "ചെയിൻ സാധുവാണ്", "latest_block": "ഏറ്റവും പുതിയ ബ്ലോക്ക്"
+  }
+}
