@@ -41,7 +41,7 @@ export default function MakePayment() {
         buyerPaidToName: invoice.msmeCompanyName || 'MSME',
         buyerPaidAmount: invoice.amount,
         agentStage: 7,
-        'stageStatuses.settlement': 'active' // settlement not fully complete until MSME withdraws
+        'stageStatuses.settlement': 'completed'
       });
 
       // Log to blockchain
@@ -72,7 +72,7 @@ export default function MakePayment() {
         buyerPaidToName: invoice.acceptedFunder?.name || 'Funder',
         buyerPaidAmount: invoice.amount,
         agentStage: 7,
-        'stageStatuses.settlement': 'active' // settlement not fully complete until Funder withdraws
+        'stageStatuses.settlement': 'completed'
       });
 
       // Log to blockchain

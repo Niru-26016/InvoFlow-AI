@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { NotificationProvider, useBadges } from '../contexts/NotificationContext';
 import { useTranslation } from 'react-i18next';
 import { 
   LayoutDashboard, Upload, CheckCircle, DollarSign, Wallet,
@@ -51,10 +52,11 @@ const LANGUAGES = [
   { code: 'ml', label: 'മ' },
 ];
 
-export default function Layout() {
+function LayoutInner() {
   const { user, userRole, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const badges = useBadges();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [isDark, setIsDark] = useState(() => {
@@ -125,7 +127,31 @@ export default function Layout() {
             >
               <item.icon size={18} className="flex-shrink-0" />
               <span className="flex-1">{t(item.labelKey)}</span>
-              <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+              {badges[item.path] > 0 ? (
+                <span
+                  className="notification-badge"
+                  style={{
+                    minWidth: '20px',
+                    height: '20px',
+                    padding: '0 6px',
+                    borderRadius: '10px',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'linear-gradient(135deg, var(--color-primary-500), var(--color-accent-500))',
+                    color: '#fff',
+                    boxShadow: '0 2px 8px rgba(139, 92, 246, 0.4)',
+                    animation: 'badgePulse 2s ease-in-out infinite',
+                    flexShrink: 0,
+                  }}
+                >
+                  {badges[item.path] > 99 ? '99+' : badges[item.path]}
+                </span>
+              ) : (
+                <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+              )}
             </NavLink>
           ))}
         </nav>
@@ -158,6 +184,9 @@ export default function Layout() {
           >
             <Menu size={20} />
           </button>
+          <h2 className="absolute left-1/2 -translate-x-1/2 text-lg font-bold" style={{ color: 'var(--color-primary-500)' }}>
+            {t(nav.titleKey)}
+          </h2>
           <div className="flex items-center gap-3 ml-auto">
             {/* Language Switcher */}
             <div className="relative">
@@ -219,5 +248,13 @@ export default function Layout() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function Layout() {
+  return (
+    <NotificationProvider>
+      <LayoutInner />
+    </NotificationProvider>
   );
 }

@@ -4,9 +4,11 @@ import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import StatCard from '../../components/StatCard';
-import { TrendingUp, DollarSign, BarChart3, Shield, FileText, Banknote, Loader2, ShieldCheck } from 'lucide-react';
+import { TrendingUp, DollarSign, BarChart3, Shield, FileText, Banknote, Loader2, ShieldCheck, Zap } from 'lucide-react';
 import { logToLedger } from '../../services/blockchainService';
 import { doc, updateDoc } from 'firebase/firestore';
+
+const PLATFORM_FEE_RATE = 0.015;
 
 export default function PortfolioPerformance() {
   const { user } = useAuth();
@@ -18,9 +20,14 @@ export default function PortfolioPerformance() {
   const handleWithdraw = async (invoice) => {
     setWithdrawingId(invoice.id);
     try {
+      const platformFee = invoice.acceptedFunder?.platformFee || Math.round((invoice.amount || 0) * PLATFORM_FEE_RATE);
+      const withdrawAmount = (invoice.amount || 0) - platformFee;
+
       await updateDoc(doc(db, 'invoices', invoice.id), {
         status: 'settled',
-        'stageStatuses.settlement': 'completed'
+        'stageStatuses.settlement': 'completed',
+        settlementPlatformFee: platformFee,
+        settlementFunderReceived: withdrawAmount
       });
 
       // Log to blockchain
@@ -30,7 +37,8 @@ export default function PortfolioPerformance() {
         toUser: user.uid,
         toName: user.email?.split('@')[0] || 'Funder',
         invoiceNumber: invoice.invoiceNumber,
-        amount: invoice.amount
+        amount: withdrawAmount,
+        metadata: { platformFee, grossAmount: invoice.amount }
       });
     } catch (err) {
       console.error('Withdraw failed:', err);
@@ -62,7 +70,8 @@ export default function PortfolioPerformance() {
   const totalProfit = funded.reduce((sum, i) => {
     const invoiceAmt = i.amount || 0;
     const paid = i.acceptedFunder?.msmeReceives || invoiceAmt;
-    return sum + (invoiceAmt - paid);
+    const fee = i.acceptedFunder?.platformFee || Math.round(invoiceAmt * PLATFORM_FEE_RATE);
+    return sum + (invoiceAmt - paid - fee);
   }, 0);
   const avgRate = funded.length > 0
     ? (funded.reduce((sum, i) => sum + (i.acceptedFunder?.rate || 0), 0) / funded.length).toFixed(1)
@@ -79,7 +88,7 @@ export default function PortfolioPerformance() {
 
       {/* Stats from real Firestore data */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={DollarSign} label="Total Profit" value={`₹${totalProfit >= 100000 ? (totalProfit / 100000).toFixed(1) + 'L' : totalProfit.toLocaleString('en-IN')}`} color="accent" />
+        <StatCard icon={DollarSign} label="Net Profit" value={`₹${totalProfit >= 100000 ? (totalProfit / 100000).toFixed(1) + 'L' : totalProfit.toLocaleString('en-IN')}`} color="accent" />
         <StatCard icon={TrendingUp} label="Avg Rate" value={`${avgRate}%`} color="accent" />
         <StatCard icon={BarChart3} label="Total Offers" value={totalOffers} color="warning" />
         <StatCard icon={Shield} label="Accept Rate" value={`${acceptRate}%`} color="accent" />
@@ -111,7 +120,10 @@ export default function PortfolioPerformance() {
               </p>
 
               <div className="space-y-3">
-                {escrowReturns.map((inv) => (
+                {escrowReturns.map((inv) => {
+                  const fee = inv.acceptedFunder?.platformFee || Math.round((inv.amount || 0) * PLATFORM_FEE_RATE);
+                  const netWithdraw = (inv.amount || 0) - fee;
+                  return (
                   <div key={inv.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border gap-4" style={{ background: 'var(--th-bg)', borderColor: 'var(--th-border-subtle)' }}>
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center">
@@ -124,8 +136,10 @@ export default function PortfolioPerformance() {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-lg font-bold" style={{ color: 'var(--th-text)' }}>₹{(inv.amount || 0).toLocaleString('en-IN')}</p>
-                        <p className="text-xs" style={{ color: 'var(--th-text-faint)' }}>Includes your profit limit</p>
+                        <p className="text-lg font-bold" style={{ color: 'var(--th-text)' }}>₹{netWithdraw.toLocaleString('en-IN')}</p>
+                        <p className="text-xs flex items-center gap-1 justify-end" style={{ color: 'var(--th-text-faint)' }}>
+                          Invoice: ₹{(inv.amount || 0).toLocaleString('en-IN')} • <Zap size={10} /> Fee: ₹{fee.toLocaleString('en-IN')}
+                        </p>
                       </div>
                       <button
                         onClick={() => handleWithdraw(inv)}
@@ -135,12 +149,13 @@ export default function PortfolioPerformance() {
                         {withdrawingId === inv.id ? (
                           <Loader2 size={16} className="animate-spin text-white" />
                         ) : (
-                          <><Banknote size={16} /> Withdraw Settlement</>
+                          <><Banknote size={16} /> Withdraw ₹{netWithdraw.toLocaleString('en-IN')}</>
                         )}
                       </button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

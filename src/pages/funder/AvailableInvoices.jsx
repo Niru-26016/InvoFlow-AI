@@ -7,6 +7,9 @@ import StatusBadge from '../../components/StatusBadge';
 import { FileText, DollarSign, Calendar, Shield, Percent, CheckCircle, Banknote, Loader2 } from 'lucide-react';
 import { logToLedger } from '../../services/blockchainService';
 
+// Platform fee rate (1.5% of invoice amount)
+const PLATFORM_FEE_RATE = 0.015;
+
 // Risk appetite determines which invoices a funder can see
 // HIGH risk taker → sees ALL invoices (including risky ones)
 // MEDIUM → sees LOW + MEDIUM risk invoices
@@ -94,6 +97,7 @@ export default function AvailableInvoices() {
     setOfferingId(invoice.id);
     try {
       const discountAmount = Math.round(invoice.amount * (rate / 100));
+      const platformFee = Math.round(invoice.amount * PLATFORM_FEE_RATE);
       const msmeReceives = invoice.amount - discountAmount;
 
       await updateDoc(doc(db, 'invoices', invoice.id), {
@@ -106,6 +110,7 @@ export default function AvailableInvoices() {
           rate: rate,
           amount: invoice.amount,
           discountAmount,
+          platformFee,
           msmeReceives,
           type: 'NBFC',
           offeredAt: new Date().toISOString()
@@ -119,7 +124,7 @@ export default function AvailableInvoices() {
         fromName: user.displayName || user.email?.split('@')[0] || 'Funder',
         invoiceNumber: invoice.invoiceNumber,
         amount: msmeReceives,
-        metadata: { rate, discountAmount, originalAmount: invoice.amount }
+        metadata: { rate, discountAmount, platformFee, originalAmount: invoice.amount }
       });
     } catch (err) {
       console.error('Bid error:', err);
@@ -335,14 +340,18 @@ export default function AvailableInvoices() {
                       </button>
                     </div>
                     {/* Preview what MSME receives */}
-                    {bidRates[inv.id] && parseFloat(bidRates[inv.id]) > 0 && (
-                      <p className="text-xs px-1" style={{ color: 'var(--th-text-muted)' }}>
-                        MSME receives: <span className="font-medium" style={{ color: 'var(--th-text)' }}>
-                          ₹{(inv.amount - Math.round(inv.amount * (parseFloat(bidRates[inv.id]) / 100))).toLocaleString('en-IN')}
-                        </span>
-                        {' '}(discount: ₹{Math.round(inv.amount * (parseFloat(bidRates[inv.id]) / 100)).toLocaleString('en-IN')})
-                      </p>
-                    )}
+                    {bidRates[inv.id] && parseFloat(bidRates[inv.id]) > 0 && (() => {
+                      const previewDiscount = Math.round(inv.amount * (parseFloat(bidRates[inv.id]) / 100));
+                      const previewNet = inv.amount - previewDiscount;
+                      return (
+                        <p className="text-xs px-1" style={{ color: 'var(--th-text-muted)' }}>
+                          MSME receives: <span className="font-medium" style={{ color: 'var(--th-text)' }}>
+                            ₹{previewNet.toLocaleString('en-IN')}
+                          </span>
+                          {' '}(your discount: ₹{previewDiscount.toLocaleString('en-IN')})
+                        </p>
+                      );
+                    })()}
                   </div>
                 )}
               </div>

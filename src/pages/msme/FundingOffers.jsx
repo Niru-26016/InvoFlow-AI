@@ -146,12 +146,12 @@ export default function FundingOffers() {
                               <p className={`text-sm font-bold ${isBest ? 'text-accent-400' : 'text-white'}`}>{funder.rate}%</p>
                             </div>
                             <div className="text-center">
-                              <p className="text-xs text-surface-500">You Receive</p>
-                              <p className="text-sm font-bold text-white">₹{msmeGets.toLocaleString('en-IN')}</p>
-                            </div>
-                            <div className="text-center">
                               <p className="text-xs text-surface-500">Fee</p>
                               <p className="text-sm font-medium text-surface-400">₹{discount.toLocaleString('en-IN')}</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-xs text-surface-500">You Receive</p>
+                              <p className="text-sm font-bold text-white">₹{msmeGets.toLocaleString('en-IN')}</p>
                             </div>
                             <button
                               onClick={() => handleAcceptOffer(inv.id, { ...funder, msmeReceives: msmeGets, discountAmount: discount })}
