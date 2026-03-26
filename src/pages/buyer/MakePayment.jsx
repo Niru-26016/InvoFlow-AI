@@ -106,9 +106,9 @@ export default function MakePayment() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={User} label="Due to MSME" value={`₹${(totalDueToMSME / 100000).toFixed(1)}L`} color="warning" />
-        <StatCard icon={Building} label="Due to Funders" value={`₹${(totalDueToFunder / 100000).toFixed(1)}L`} color="primary" />
-        <StatCard icon={CheckCircle} label="Total Paid" value={`₹${(totalPaid / 100000).toFixed(1)}L`} color="accent" />
+        <StatCard icon={User} label="Due to MSME" value={`₹${totalDueToMSME >= 100000 ? (totalDueToMSME / 100000).toFixed(1) + 'L' : totalDueToMSME.toLocaleString('en-IN')}`} color="warning" />
+        <StatCard icon={Building} label="Due to Funders" value={`₹${totalDueToFunder >= 100000 ? (totalDueToFunder / 100000).toFixed(1) + 'L' : totalDueToFunder.toLocaleString('en-IN')}`} color="primary" />
+        <StatCard icon={CheckCircle} label="Total Paid" value={`₹${totalPaid >= 100000 ? (totalPaid / 100000).toFixed(1) + 'L' : totalPaid.toLocaleString('en-IN')}`} color="accent" />
         <StatCard icon={CreditCard} label="Pending" value={payToMSME.length + payToFunder.length} color="warning" />
       </div>
 

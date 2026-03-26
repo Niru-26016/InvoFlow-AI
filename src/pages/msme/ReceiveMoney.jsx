@@ -40,8 +40,8 @@ export default function ReceiveMoney() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <StatCard icon={Wallet} label="Total Received" value={`₹${(totalReceived / 100000).toFixed(1)}L`} color="accent" />
-        <StatCard icon={Clock} label="Pending Disbursement" value={`₹${(totalPending / 100000).toFixed(1)}L`} color="warning" />
+        <StatCard icon={Wallet} label="Total Received" value={`₹${totalReceived >= 100000 ? (totalReceived / 100000).toFixed(1) + 'L' : totalReceived.toLocaleString('en-IN')}`} color="accent" />
+        <StatCard icon={Clock} label="Pending Disbursement" value={`₹${totalPending >= 100000 ? (totalPending / 100000).toFixed(1) + 'L' : totalPending.toLocaleString('en-IN')}`} color="warning" />
         <StatCard icon={DollarSign} label="Total Transactions" value={invoices.length} color="primary" />
       </div>
 

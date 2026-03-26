@@ -65,7 +65,7 @@ export default function FunderDashboard() {
 
       {/* Stats from real data */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={DollarSign} label="Total Funded" value={`₹${(totalFunded / 100000).toFixed(1)}L`} color="primary" />
+        <StatCard icon={DollarSign} label="Total Funded" value={`₹${totalFunded >= 100000 ? (totalFunded / 100000).toFixed(1) + 'L' : totalFunded.toLocaleString('en-IN')}`} color="primary" />
         <StatCard icon={TrendingUp} label="My Offers" value={myOffers} color="accent" />
         <StatCard icon={Shield} label="Avg Risk Score" value={`${avgRisk}/100`} color="warning" />
         <StatCard icon={BarChart3} label="Accepted" value={accepted} color="accent" />
@@ -115,16 +115,18 @@ export default function FunderDashboard() {
                 <div>
                   <p className="text-sm font-semibold text-white">{inv.invoiceNumber || inv.id.slice(0,8)}</p>
                   <p className="text-xs text-surface-400">
-                    ₹{(inv.amount || 0).toLocaleString('en-IN')}
+                    ₹{(inv.acceptedFunder?.msmeReceives || inv.amount || 0).toLocaleString('en-IN')}
                     {inv.acceptedFunder && <span className="ml-2">• Rate: {inv.acceptedFunder.rate}%</span>}
                   </p>
                 </div>
                 <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                  inv.status === 'settled' ? 'bg-accent-500/15 text-accent-400' :
                   inv.status === 'funded' ? 'bg-accent-500/15 text-accent-400' :
-                  inv.status === 'bidding' ? 'bg-warning-500/15 text-warning-400' :
+                  inv.status === 'accepted' ? 'bg-warning-500/15 text-warning-400' :
+                  inv.status === 'bidding' ? 'bg-primary-500/15 text-primary-400' :
                   'bg-surface-700 text-surface-400'
                 }`}>
-                  {inv.status === 'funded' ? 'Funded ✓' : 'Pending'}
+                  {inv.status === 'settled' ? 'Settled ✓' : inv.status === 'funded' ? 'Funded ✓' : inv.status === 'accepted' ? 'Accepted' : 'Bidding'}
                 </span>
               </div>
             ))}
