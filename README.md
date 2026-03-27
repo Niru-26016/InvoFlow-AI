@@ -1,79 +1,89 @@
 # InvoFlow AI — Automated Invoice Financing Platform
 
-InvoFlow AI is an end-to-end, multi-agent digital invoice financing solution designed to bridge the trust and cashflow gap between MSMEs (Micro, Small, and Medium Enterprises), Corporate Buyers, and Funders.
+InvoFlow AI is an end-to-end, multi-agent digital invoice financing solution designed to bridge the trust and cashflow gap between MSMEs (Micro, Small, and Medium Enterprises), Corporate Buyers, and Funders. By leveraging AI-driven extraction, deterministic risk scoring, and a simulated blockchain ledger, it provides a transparent and efficient marketplace for receivables.
 
-## 🚀 Key Features
+## 🚀 Multi-Agent Workflow
 
-*   **Native AI Extraction**: Automated parsing of PDF/Image invoices using `gpt-4o` document analysis via the backend agent pipeline, eliminating manual data entry.
-*   **Buyer-Confirmed Workflow**: MSMEs upload invoices; Buyers confirm authenticity, triggering the risk assessment pipeline to ensure data integrity.
-*   **Custom Risk Scoring Engine**: A deterministic algorithm evaluates buyer credit, payment history, and invoice data to assign a dynamic risk score.
-*   **Competitive Funder Bidding System**:
-    *   Funders filter invoices based on their custom Risk Appetite (`HIGH`, `MEDIUM`, `LOW`).
-    *   Funders bid competitive discount percentages on verified invoices.
-    *   MSMEs view a real-time payout preview (calculated amount to receive after discount).
-    *   MSMEs can accept the lowest rate (best deal) from a sorted list of funder bids.
-*   **Dynamic Hexaware-Inspired Theme**: A professional, corporate design system featuring a vibrant electric blue primary palette, clean white/navy backgrounds, and a persistent Light/Dark mode toggle (saved via `localStorage`).
+The platform operates through a series of specialized agent stages that ensure the integrity of every transaction:
+
+1.  **AI Extraction & Verification Agent**: 
+    *   Powered by `gpt-4o` for high-accuracy document parsing.
+    *   Automatically extracts Buyer/Seller details, Invoice Number, Amount, and Due Date.
+    *   **Strict Identity Check**: Cross-references the seller details on the invoice with the registered MSME profile using fuzzy name matching and exact GSTIN validation.
+2.  **Buyer Confirmation Agent**:
+    *   Invoices are routed to the Buyer for digital confirmation.
+    *   Buyers verify that the goods/services were received and the invoice is authentic.
+3.  **Deterministic Risk Agent**:
+    *   Runs a multi-factor scoring algorithm to grade the invoice (A+ to D).
+    *   **Factors**: Buyer Credit Score (40%), Payment History (20%), Avg Payment Days (15%), Invoice Amount (10%), Due Date Proximity (10%), and GSTIN Validation (5%).
+4.  **Bidding & Matching Agent**:
+    *   Verified invoices are listed for Funders based on their **Risk Appetite** (`LOW`, `MEDIUM`, `HIGH`).
+    *   Funders place competitive discount bids. MSMEs can accept the best offer.
+5.  **Escrow & Settlement Agent**:
+    *   Simulated escrow system handles the flow of funds from Funder to MSME.
+    *   Integrates with a **Blockchain Ledger** to log every lifecycle event.
+
+## 🛡️ Blockchain Ledger Simulation
+
+Every critical action is logged to an immutable, transparent ledger:
+*   **Integrity**: Each block contains a SHA-256 hash of its data and the previous block's hash.
+*   **Verification**: Built-in chain integrity checks detect any data tampering or broken links.
+*   **Events Logged**: Uploads, AI Verifications, Buyer Confirmations, Funder Bids, Escrow Deposits, and Final Settlements.
 
 ## 🛠️ Technology Stack
 
-*   **Frontend**: React (Vite), Tailwind CSS v4
-*   **Backend**: Node.js, Express (OpenAI API proxying & Agent Logic)
-*   **Database & Auth**: Google Firebase (Firestore, Authentication)
-*   **AI Integrations**: OpenAI GPT-4o (`/api/agents/analyze`)
+*   **Frontend**: React 19 (Vite), Tailwind CSS v4, Lucide React, Recharts
+*   **Backend**: Node.js, Express (AI orchestration & PDF parsing)
+*   **Database & Auth**: Google Firebase (Firestore, Authentication, Cloud Functions-ready)
+*   **AI Integrations**: OpenAI GPT-4o Vision API
+*   **Localization**: `i18next` with support for 6 languages: 🇬🇧 English, 🇮🇳 Hindi, 🇮🇳 Tamil, 🇮🇳 Telugu, 🇮🇳 Kannada, and 🇮🇳 Malayalam.
 
 ## 📦 Project Structure
 
-*   `/src`: React frontend, containing role-based dashboards (MSME, Buyer, Funder), reusable components (StatCards, StatusBadges, Layout), and contexts (AuthContext).
-*   `/server`: Express backend containing the AI agent workflow orchestration for document parsing.
+```text
+├── src/
+│   ├── components/       # Reusable UI (StatusBadges, Trackers, Layouts)
+│   ├── contexts/         # Auth and Notification state management
+│   ├── locales/          # Translation files (en, hi, ta, te, kn, ml)
+│   ├── pages/            # Role-specific dashboards (MSME, Buyer, Funder)
+│   ├── services/         # Blockchain logic and API services
+│   └── i18n.js           # Internationalization configuration
+└── server/
+    ├── routes/           # AI Agent endpoints (OpenAI proxy)
+    └── index.js          # Express server entry point
+```
 
 ## 🚦 Getting Started
 
 ### Prerequisites
-*   Node.js (v18+ recommended)
-*   A Firebase project with Firestore and Authentication enabled.
-*   An OpenAI API key.
+*   Node.js (v18+)
+*   Firebase Project (Firestore + Auth)
+*   OpenAI API Key
 
 ### Setup Instructions
 
-1.  **Clone the repository:**
+1.  **Clone & Install:**
     ```bash
     git clone https://github.com/your-username/invoflow-ai.git
-    cd invoflow-ai
+    npm install
+    cd server && npm install
     ```
 
 2.  **Environment Variables:**
-    *   **Frontend**: Create a `.env` in the root folder with your Firebase configuration.
-    *   **Backend**: Create a `.env` in the `/server` folder containing your `OPENAI_API_KEY`.
+    *   **Root (.env)**: `VITE_BACKEND_URL=http://localhost:5000` + Firebase Config (`VITE_FIREBASE_API_KEY`, etc.)
+    *   **Server (.env)**: `OPENAI_API_KEY=your_key_here`
 
-3.  **Install Dependencies:**
+3.  **Run Development:**
     ```bash
-    # Install frontend dependencies
-    npm install
-
-    # Install backend dependencies
-    cd server
-    npm install
-    cd ..
-    ```
-
-4.  **Run Development Servers:**
-    Run both the frontend and backend servers simultaneously:
-    ```bash
-    # Open two terminal windows/tabs:
-    
-    # Terminal 1 (Frontend)
+    # Root folder (Frontend)
     npm run dev
     
-    # Terminal 2 (Backend)
-    cd server
+    # Server folder (Backend)
     npm run dev
     ```
 
-5.  **Access the Application:**
-    Navigate to `http://localhost:5173` in your browser.
+## 🔐 Platform Roles
 
-## 🔐 Roles & Workflows
-
-1.  **MSME**: Uploads invoices and accepts the best funding bids.
-2.  **Buyer**: Verifies and confirms uploaded invoices to trigger the risk analysis.
-3.  **Funder**: Evaluates verified invoices based on risk appetite and submits competitive discount bids to finance the MSME.
+*   **MSME**: Uploads invoices, tracks AI verification in real-time, and accepts the lowest-rate funding offers.
+*   **Buyer**: Manages supplier relations by confirming valid invoices and settling payments into escrow.
+*   **Funder**: Deploys capital based on risk appetite, bids on verified invoices, and earns a return upon settlement.
