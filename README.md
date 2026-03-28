@@ -64,7 +64,7 @@ Every critical action is logged to an immutable, transparent ledger:
 
 1.  **Clone & Install:**
     ```bash
-    git clone https://github.com/your-username/invoflow-ai.git
+    git clone https://github.com/Niru-26016/invoflow-ai.git
     npm install
     cd server && npm install
     ```
